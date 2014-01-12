@@ -1,0 +1,9 @@
+keyword int
+identifier main
+operator (
+operator )
+operator {
+keyword return
+octal 0
+operator ;
+operator }

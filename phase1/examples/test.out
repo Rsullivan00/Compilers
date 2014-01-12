@@ -1,0 +1,9 @@
+keyword int
+identifier main
+operator (
+operator )
+operator {
+keyword return
+decimal 0
+operator ;
+operator }
