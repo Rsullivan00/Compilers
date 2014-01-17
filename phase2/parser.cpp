@@ -1,11 +1,41 @@
 #include <iostream>
 #include "tokens.h"
 
-
-
 void expression(){
+	
+}
+
+void logicalOr() {
 
 }
+
+void logicalAnd() {
+
+}
+
+void equality() {
+
+}
+
+void relational() {
+
+}
+
+void additive() {
+
+}
+
+void multiplicative() {
+
+}
+
+void unary() {
+
+}
+
+void primary() {
+
+} 
 
 void expressionList() {
 
