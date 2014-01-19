@@ -1,4 +1,4 @@
-enum returns {
+enum Tokens {
 	AUTO = 256,
 	BREAK,
 	CASE,

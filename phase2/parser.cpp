@@ -3,6 +3,7 @@
 # include <stdio.h>
 # include "lexer.h"
 # include "tokens.h"
+# include "outputs.h"
 
 using namespace std;
 
@@ -123,7 +124,7 @@ void primary() {
 			match(STRING);
 			break;
 		default:
-			report("Parsing error");
+			report("Parsing error.");
 	}
 } 
 

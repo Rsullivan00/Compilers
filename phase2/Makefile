@@ -13,5 +13,5 @@ clean:;		$(RM) -f $(PROG) core *.o
 lexer.cpp:	lexer.l tokens.h
 		$(LEX) $(LFLAGS) -t lexer.l > lexer.cpp
 
-parser.cpp:	tokens.h
+parser.cpp:	tokens.h outputs.h
 
