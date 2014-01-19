@@ -8,13 +8,26 @@ using namespace std;
 
 int lookahead;
 
+void expression();
+void logicalOr();
+void logicalAnd();
+void equality();
+void relational();
+void additive();
+void multiplicative();
+void unary();
+void index();
+void primary();
+void match(int);
+
 void expression(){
+	logicalOr();
 }
 
 void logicalOr() {
 	logicalAnd();
 
-	while(lookheahead == OROR) {
+	while(lookahead == OROR) {
 		match(OROR);
 		logicalAnd();
 	}	
@@ -42,7 +55,7 @@ void relational() {
 	additive();
 
 	while(lookahead == LESSTHANEQUAL || lookahead == GREATERTHANEQUAL ||
-		lookahead == LESSTHAN || lookahead == GREATERTHAN) {
+		lookahead == '<' || lookahead == '>') {
 		match(lookahead);
 		additive();
 	}
@@ -86,22 +99,41 @@ void index() {
 }
 
 void primary() {
-	if (lookahead == '(') {
-		match('{');
-		expression();
-		match(')');
-	} else if (lookahead == NUM) {
-		match(NUM);
-	} else if (lookahead == ID) {
-		match(ID);
-		// Add id(expression) here
-	} else if (lookahead == STRING) {
-		match(STRING);
-	} else if (	
+	switch (lookahead) {
+		case '(': 
+			match('{');
+			expression();
+			match(')');
+			break;
+		case NUM:
+			match(NUM);
+			break;
+		case ID:
+			match(ID);
+			break;
+			if (lookahead == '(') {
+				match('(');
+				if (lookahead != ')') {
+					expression();
+				}
+				match(')');
+			}
+			break;
+		case STRING:
+			match(STRING);
+			break;
+		default:
+			report("Parsing error");
+	}
 } 
 
 void expressionList() {
-
+	expression();
+	
+	while (lookahead == ',') {
+		match(',');
+		expression();
+	}
 }
 
 

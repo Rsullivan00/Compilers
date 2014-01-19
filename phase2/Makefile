@@ -1,4 +1,4 @@
-CXXFLAGS	= -g -Wall -std=c++0x
+CXXFLAGS	= -g -Wall
 OBJS		= lexer.o parser.o
 PROG		= scc
 
