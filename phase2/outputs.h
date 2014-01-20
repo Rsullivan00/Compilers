@@ -1,4 +1,6 @@
-const char* getOutput (int t) {
+using namespace std;
+
+const char* getOutput(int t) {
 	switch (t) {
 		case OROR: 		return "or";
 		case ANDAND: 		return "and"; 
@@ -15,17 +17,29 @@ const char* getOutput (int t) {
 		case '%':		return "rem";
 		// Skip unary operators to avoid duplicates
 		case '[':		return "index";
-		default:		return "No output for " << t;
+		default:		return "No output for token";
 	}
 }
 
-const char* getOutputUnary (int t) {
+const char* getUnaryOutput(int t) {
 	switch (t) {
 		case '&':		return "addr";
 		case '*':		return "deref";
 		case '!':		return "not";
 		case '-':		return "neg";
 		case SIZEOF:		return "sizeof";
-		default:		return "No output for " << t;
+		default:		return "No output for token";
 	}
+}
+
+void print(const char* t) {
+	cout << t << endl;
+}
+
+void print(int t) {
+	print(getOutput(t));
+}
+
+void printUnary(int t) {
+	print(getUnaryOutput(t));
 }

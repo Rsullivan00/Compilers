@@ -31,6 +31,7 @@ void logicalOr() {
 	while(lookahead == OROR) {
 		match(OROR);
 		logicalAnd();
+		print("or");
 	}	
 }
 
@@ -40,50 +41,67 @@ void logicalAnd() {
 	while(lookahead == ANDAND) {
 		match(ANDAND);
 		equality();
+		print("and");
 	}	
 }
 
 void equality() {
+	int prev;
 	relational();
 
 	while(lookahead == EQUALEQUAL || lookahead == NOTEQUAL) {
+		prev = lookahead;
 		match(lookahead);
 		relational();
+		print(prev);
 	}
 }
 
 void relational() {
+	int prev;
 	additive();
 
 	while(lookahead == LESSTHANEQUAL || lookahead == GREATERTHANEQUAL ||
 		lookahead == '<' || lookahead == '>') {
+		prev = lookahead;
 		match(lookahead);
 		additive();
+		print(prev);
 	}
 }
 
 void additive() {
+	int prev;
 	multiplicative();
 
 	while(lookahead == '+' || lookahead == '-') {
+		prev = lookahead;
 		match(lookahead);
 		multiplicative();
+		print(prev);
 	}
 }
 
 void multiplicative() {
+	int prev;
 	unary();
 
 	while(lookahead == '*' || lookahead == '/' || lookahead == '%') {
+		prev = lookahead;
 		match(lookahead);
 		unary();
+		print(prev);
 	}
 }
 
 void unary() {
+	int prev;
+
 	while(lookahead == '!' || lookahead == '-' || lookahead == '&' ||
 		lookahead == '*' || lookahead == SIZEOF) {
+		prev = lookahead;
 		match(lookahead);
+		printUnary(prev);
 	}
 
 	index();	
@@ -94,6 +112,7 @@ void index() {
 		match('[');
 		expression();
 		match(']');
+		print("index");
 	}
 
 	primary();
