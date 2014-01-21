@@ -142,12 +142,8 @@ void primary() {
 			expression();
 			match(')');
 			break;
-		case NUM:
-			match(NUM);
-			break;
-		case ID:
+				case ID:
 			match(ID);
-			break;
 			if (lookahead == '(') {
 				match('(');
 				if (lookahead != ')') {
@@ -157,10 +153,11 @@ void primary() {
 			}
 			break;
 		case STRING:
-			match(STRING);
+		case NUM:
+			match(lookahead);
 			break;
 		default:
-			// Do nothing
+			//match(lookahead);
 			break;
 	}
 } 
@@ -175,7 +172,7 @@ void expressionList() {
 }
 
 void statements() {
-	while (lookahead != '\0' && lookahead != EOF) {
+	while (lookahead != '}') {
 		statement();
 	}
 }
@@ -218,11 +215,12 @@ void statement() {
 				expression();
 			}
 			match(';');
+			break;
 	}
 }
 
 void declarations() {
-	while (lookahead != '\0' && lookahead != EOF) {
+	while (lookahead == INT || lookahead == VOID) {
 		declaration();
 	}
 }
@@ -326,8 +324,10 @@ void translationUnit() {
 			parameters();
 			match(')');
 			if (lookahead == '{') { //Function definition
+				match('{');
 				declarations();
 				statements();
+				match('}');
 			} else {
 				remainingGlobalDeclarators();
 			}
@@ -353,7 +353,7 @@ void parameters() {
 
 void remainingParameters() {
 	while (lookahead == ',') {
-		// Parameter
+		// Parameter inline
 		specifier();
 		pointers();
 		match(ID);
@@ -382,17 +382,17 @@ void match(int t) {
 	if (lookahead == t) {
 		lookahead = yylex();
 	} else { 
-		cout << t << endl;
-		report("Token not matched.");			
+		//cout << t << endl;
+		//report("Token not matched.");			
 	}
 }
-
 
 int main()
 {
     	lookahead = yylex();
-	declaration();
-	statement();
+	while (lookahead != '\0' && lookahead != EOF) {
+		translationUnit();
+	}
     	return 0;
 }
 
