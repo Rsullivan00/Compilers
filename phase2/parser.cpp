@@ -19,7 +19,24 @@ void multiplicative();
 void unary();
 void index();
 void primary();
+void expressionList();
+void statements();
+void statement();
+void declarations();
+void declaration();
+void declaratorList();
+void declarator();
+void specifier();
+void pointers();
+void translationUnit();
+void globalDeclaration();
+void globalDeclaratorList();
+void remainingGlobalDeclarators();
+void globalDeclarator();
+void parameters();
+void remainingParameters();
 void match(int);
+
 
 void expression(){
 	logicalOr();
@@ -121,7 +138,7 @@ void index() {
 void primary() {
 	switch (lookahead) {
 		case '(': 
-			match('{');
+			match('(');
 			expression();
 			match(')');
 			break;
@@ -143,7 +160,8 @@ void primary() {
 			match(STRING);
 			break;
 		default:
-			report("Parsing error.");
+			// Do nothing
+			break;
 	}
 } 
 
@@ -156,6 +174,191 @@ void expressionList() {
 	}
 }
 
+void statements() {
+	while (lookahead != '\0' && lookahead != EOF) {
+		statement();
+	}
+}
+
+void statement() {
+	switch (lookahead) {
+		case '{':	
+			match('{');
+			declarations();
+			statements();
+			match('}');
+			break;
+		case RETURN:
+			match(RETURN);
+			expression();
+			match(';');
+			break;
+		case WHILE:
+			match(WHILE);
+			match('(');
+			expression();
+			match(')');
+			statement();
+			break;
+		case IF:
+			match(IF);
+			match('(');
+			expression();
+			match(')');
+			statement();
+			if (lookahead == ELSE) {
+				match(ELSE);
+				statement();
+			}
+			break;
+		default:
+			expression();
+			if (lookahead == '=') {
+				match('=');
+				expression();
+			}
+			match(';');
+	}
+}
+
+void declarations() {
+	while (lookahead != '\0' && lookahead != EOF) {
+		declaration();
+	}
+}
+
+void specifier() {
+	if (lookahead == INT || lookahead == VOID) {
+		match(lookahead);
+	}
+}
+
+void declaration() {
+	specifier();
+	declaratorList();
+	match(';');
+}
+
+void declaratorList() {
+	declarator();
+	
+	while (lookahead == ',') {
+		match(',');
+		declarator();
+	}
+}
+
+void declarator() {
+	pointers();
+	match(ID);
+	if (lookahead == '[') {
+		match('[');
+		match(NUM);
+		match(']');
+	}
+}
+
+void pointers() {
+	while (lookahead == '*') {
+		match('*');
+	}
+}
+
+void globalDeclarator() {
+	specifier();
+	pointers();
+	match(ID);
+
+	if (lookahead == '[') {
+		match('[');
+		match(NUM);
+		match(']');
+	} else if (lookahead == '(') {
+		match('(');
+		parameters();
+		match(')');
+	}
+}
+
+void globalDeclaratorList() {
+	globalDeclarator();
+	
+	while (lookahead == ',') {
+		match(',');
+		globalDeclarator();
+	}
+}
+
+void globalDeclaration() {
+	specifier();
+	globalDeclaratorList();
+	match(';');
+}
+
+void functionDefinition() {
+	specifier();
+	pointers();
+	match(ID);
+	match('(');
+	parameters();
+	match(')');
+	match('{');
+	declarations();
+	statements();
+	match('}');
+}
+
+void remainingGlobalDeclarators() {
+	while (lookahead == ',') {
+		match(',');
+		globalDeclarator();
+	}
+}
+
+void translationUnit() {
+	while (lookahead == INT || lookahead == VOID) {
+		specifier();
+		pointers();
+		match(ID);
+
+		if (lookahead == '(') {
+			match('(');
+			parameters();
+			match(')');
+			if (lookahead == '{') { //Function definition
+				declarations();
+				statements();
+			} else {
+				remainingGlobalDeclarators();
+			}
+		} else if (lookahead == '[') {
+			match('[');
+			match(NUM);
+			match(']');
+			remainingGlobalDeclarators();
+		} else {
+			remainingGlobalDeclarators();
+		}
+	}
+}	
+
+void parameters() {
+	if (lookahead == VOID || lookahead == INT) {
+		match(lookahead);
+		pointers();
+		match(ID);
+		remainingParameters();
+	}
+}
+
+void remainingParameters() {
+	while (lookahead == ',') {
+		// Parameter
+		specifier();
+		pointers();
+		match(ID);
+	}
+}
 
 /*
  *  * Function:	report
@@ -172,14 +375,15 @@ void report(const string &str, const string &arg)
     	char buf[1000];
 
     	snprintf(buf, sizeof(buf), str.c_str(), arg.c_str());
-    	cerr << "line " << yylineno << ": " << buf << endl;
+    	cerr << "line " << yylineno << ": " << buf << lookahead << endl;
 }
 
 void match(int t) {
 	if (lookahead == t) {
 		lookahead = yylex();
 	} else { 
-		report("Token not matched: ");			
+		cout << t << endl;
+		report("Token not matched.");			
 	}
 }
 
@@ -187,7 +391,8 @@ void match(int t) {
 int main()
 {
     	lookahead = yylex();
-	expression();
+	declaration();
+	statement();
     	return 0;
 }
 
