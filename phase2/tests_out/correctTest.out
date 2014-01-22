@@ -1,0 +1,9 @@
+mul
+add
+mul
+index
+addr
+add
+index
+deref
+not

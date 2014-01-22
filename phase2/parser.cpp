@@ -289,28 +289,13 @@ void globalDeclaratorList() {
 	}
 }
 
-void globalDeclaration() {
-	specifier();
-	globalDeclaratorList();
-	match(';');
-}
-
-void functionDefinition() {
-	specifier();
-	pointers();
-	match(ID);
-	match('(');
-	parameters();
-	match(')');
-	match('{');
-	declarations();
-	statements();
-	match('}');
-}
-
+/* Function definition, global declarator, global declarator list, and global declaration
+ * are all captured by translationUnit() and remainingGlobalDeclarators().
+ */
 void remainingGlobalDeclarators() {
 	while (lookahead == ',') {
 		match(',');
+		pointers();
 		match(ID);
 
 		if (lookahead == '[') {
