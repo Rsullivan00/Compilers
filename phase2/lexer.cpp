@@ -1064,7 +1064,7 @@ YY_RULE_SETUP
 case 44:
 YY_RULE_SETUP
 #line 69 "lexer.l"
-{return OCTAL;}
+{return NUM;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
@@ -1074,7 +1074,7 @@ YY_RULE_SETUP
 case 46:
 YY_RULE_SETUP
 #line 71 "lexer.l"
-{return HEXADECIMAL;}
+{return NUM;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP

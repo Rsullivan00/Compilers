@@ -66,9 +66,9 @@ static void ignoreComment();
 "->"				{return ARROW;}
 [-=<>+*/%&!()\[\]{};:.,]	{return *yytext;}
 
-0[0-7]*				{return OCTAL;}
+0[0-7]*				{return NUM;}
 [1-9][0-9]*			{return NUM;}
-0[xX][0-9a-fA-F]+		{return HEXADECIMAL;}
+0[xX][0-9a-fA-F]+		{return NUM;}
 [a-zA-Z_][a-zA-Z_0-9]*		{return ID;}
 \"(\\.|[^\\\n"])*\"		{return STRING;}
 

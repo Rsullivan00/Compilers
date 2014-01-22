@@ -114,25 +114,26 @@ void multiplicative() {
 void unary() {
 	int prev;
 
-	while(lookahead == '!' || lookahead == '-' || lookahead == '&' ||
+	if (lookahead == '!' || lookahead == '-' || lookahead == '&' ||
 		lookahead == '*' || lookahead == SIZEOF) {
 		prev = lookahead;
 		match(lookahead);
+		unary();
 		printUnary(prev);
+	} else  {
+		index();	
 	}
-
-	index();	
 }
 
 void index() {
+	primary();
+
 	while(lookahead == '[') {
 		match('[');
 		expression();
 		match(']');
 		print("index");
 	}
-
-	primary();
 }
 
 void primary() {
@@ -142,22 +143,23 @@ void primary() {
 			expression();
 			match(')');
 			break;
-				case ID:
+		case ID:
 			match(ID);
 			if (lookahead == '(') {
 				match('(');
 				if (lookahead != ')') {
-					expression();
+					expressionList();
 				}
 				match(')');
 			}
 			break;
 		case STRING:
+			match(STRING);
+			break;
 		case NUM:
-			match(lookahead);
+			match(NUM);
 			break;
 		default:
-			//match(lookahead);
 			break;
 	}
 } 
@@ -309,7 +311,17 @@ void functionDefinition() {
 void remainingGlobalDeclarators() {
 	while (lookahead == ',') {
 		match(',');
-		globalDeclarator();
+		match(ID);
+
+		if (lookahead == '[') {
+			match('[');
+			match(NUM);
+			match(']');
+		} else if (lookahead == '(') {
+			match('(');
+			parameters();
+			match(')');
+		}
 	}
 }
 
@@ -330,14 +342,17 @@ void translationUnit() {
 				match('}');
 			} else {
 				remainingGlobalDeclarators();
+				match(';');
 			}
 		} else if (lookahead == '[') {
 			match('[');
 			match(NUM);
 			match(']');
 			remainingGlobalDeclarators();
+			match(';');
 		} else {
 			remainingGlobalDeclarators();
+			match(';');
 		}
 	}
 }	
@@ -345,14 +360,18 @@ void translationUnit() {
 void parameters() {
 	if (lookahead == VOID || lookahead == INT) {
 		match(lookahead);
-		pointers();
-		match(ID);
-		remainingParameters();
+		
+		if (lookahead == '*' || lookahead == ID) {
+			pointers();
+			match(ID);
+			remainingParameters();
+		}
 	}
 }
 
 void remainingParameters() {
 	while (lookahead == ',') {
+		match(',');
 		// Parameter inline
 		specifier();
 		pointers();
@@ -375,15 +394,15 @@ void report(const string &str, const string &arg)
     	char buf[1000];
 
     	snprintf(buf, sizeof(buf), str.c_str(), arg.c_str());
-    	cerr << "line " << yylineno << ": " << buf << lookahead << endl;
+    	cerr << "line " << yylineno << ": " << buf << endl;
 }
 
 void match(int t) {
 	if (lookahead == t) {
 		lookahead = yylex();
 	} else { 
-		//cout << t << endl;
-		//report("Token not matched.");			
+		cout << t << " expected, " << lookahead << " found."  << endl;
+		report("");			
 	}
 }
 
