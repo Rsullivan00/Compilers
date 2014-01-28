@@ -778,8 +778,10 @@ static void globalOrFunction()
 			cout << "declare function " << spec << ' ' << indirection << name << endl;
 			remainingDeclarators(spec);
 		}
-	} else
+	} else {
+		cout << "declare global " << spec << ' ' << indirection << name << endl;
 		remainingDeclarators(spec);
+	}
 }
 
 
