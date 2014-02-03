@@ -6,11 +6,11 @@ typedef std::vector<class Type> Parameters;
 enum {ARRAY, FUNCTION, SCALAR};
 
 class Type {
+	int _kind;
 	int _specifier;
 	unsigned _indirection;
 	unsigned _length;
 	Parameters *_parameters;;
-	int _kind;
 
 public:
 	/* Accessors */
@@ -28,7 +28,7 @@ public:
 	bool operator==(const Type &rhs) const {
 		if (_kind != rhs._kind) return false;
 		if (_specifier != rhs._specifier) return false;
-		if (_kind == ARRAY && _length != rhs.length) return false;
+		if (_kind == ARRAY && _length != rhs._length) return false;
 		if (_kind == FUNCTION) {
 			if (_parameters == NULL)
 				return true;

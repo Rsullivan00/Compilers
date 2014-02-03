@@ -3,26 +3,29 @@
 # include <vector>
 # include "Symbol.h"
 
-typedef std::vector<class Symbol> Symbols;
+typedef std::vector<Symbol> Symbols;
 
 class Scope {
 	Scope *_higherScope;
-	Symbols *_symbols;
+	Symbols _symbols;
 
 public:
 	/* Accessors */
 	const Scope *higherScope() const { return _higherScope; }
-	const Symbols *symbols() const { return _symbols; }
-	const int numSymbols() const { return _symbols.size; }
+	const Symbols symbols() const { return _symbols; }
+	const int numSymbols() const { return _symbols.size(); }
 
 	/* Mutators */
 	void addSymbol(Symbol *symbol) {
-		_symbols.push_back(symbol);
+		_symbols.push_back(*symbol);
 	}
 
 	/* Constructor */
-	Scope (Scope *higherScope, Symbols *symbols=NULL)
+	Scope (Scope *higherScope, Symbols symbols)
 		:_higherScope(higherScope), _symbols(symbols) {}	
+
+	Scope (Scope *higherScope)	
+		:_higherScope(higherScope) {}
 };	
 
 # endif

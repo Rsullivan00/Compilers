@@ -10,6 +10,10 @@
 # include <iostream>
 # include "tokens.h"
 # include "lexer.h"
+# include "Type.h"
+# include "Symbol.h"
+# include "Scope.h"
+# include "SymbolTable.h"
 
 using namespace std;
 
