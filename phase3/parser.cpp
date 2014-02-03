@@ -13,7 +13,7 @@
 # include "Type.h"
 # include "Symbol.h"
 # include "Scope.h"
-# include "SymbolTable.h"
+# include "checker.cpp"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ static void openScope(string scopeName) {
 }
 
 static void openScope(string functionName, string specifier, unsigned indirection) {
-	cout << "open scope: function " << specifier << ' ' << indirection << functionName << endl;;
+	cout << "open scope: function " << specifier << ' ' << indirection << functionName << endl;
 }
 
 static void closeScope(string scopeName) {
@@ -35,7 +35,7 @@ static void closeScope(string scopeName) {
 }
 
 static void closeScope(string functionName, string specifier, unsigned indirection) {
-	cout << "close scope: function " << specifier << ' ' << indirection << functionName << endl;;
+	cout << "close scope: function " << specifier << ' ' << indirection << functionName << endl;
 }
 
 /*
@@ -568,9 +568,9 @@ static void statement()
     if (lookahead == '{') {
 	match('{');
 	declarations();
-	openScope("statement");
+	openScope();
 	statements();
-	closeScope("statement");
+	closeScope();
 	match('}');
 
     } else if (lookahead == RETURN) {
@@ -698,11 +698,11 @@ static void globalDeclarator(string spec)
 		cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
 
 	} else if (lookahead == '(') {
-		openScope(name, spec, indirection);
+		openScope();
 		match('(');
 		parameters();
 		match(')');
-		closeScope(name, spec, indirection);
+		closeScope();
 
 		cout << "declare function " << spec << ' ' << indirection << name <<  endl;
 	} else {
@@ -764,7 +764,7 @@ static void globalOrFunction()
 		remainingDeclarators(spec);
 
 	} else if (lookahead == '(') {
-		openScope(name, spec, indirection);
+		openScope();
 		match('(');
 		parameters();
 		match(')');
@@ -773,12 +773,12 @@ static void globalOrFunction()
 			match('{');
 			declarations();
 			statements();
-			closeScope(name, spec, indirection);
+			closeScope();
 			match('}');
 			cout << "define function " << spec << ' ' << indirection << name << endl;
 
 		} else {
-			closeScope(name, spec, indirection);
+			closeScope();
 			cout << "declare function " << spec << ' ' << indirection << name << endl;
 			remainingDeclarators(spec);
 		}
@@ -798,12 +798,12 @@ static void globalOrFunction()
 int main()
 {
 	lookahead = yylex();
-	openScope("translation unit");
+	openScope();
 
 	while (lookahead != DONE)
 		globalOrFunction();
 
-	closeScope("translation unit");
+	closeScope();
 
 	exit(EXIT_SUCCESS);
 }
