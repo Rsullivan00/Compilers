@@ -10,9 +10,6 @@
 # include <iostream>
 # include "tokens.h"
 # include "lexer.h"
-# include "Type.h"
-# include "Symbol.h"
-# include "Scope.h"
 # include "checker.cpp"
 
 using namespace std;
@@ -21,22 +18,6 @@ static int lookahead;
 
 static void expression();
 static void statement();
-
-static void openScope(string scopeName) {
-	cout << "open scope: " << scopeName << endl;
-}
-
-static void openScope(string functionName, string specifier, unsigned indirection) {
-	cout << "open scope: function " << specifier << ' ' << indirection << functionName << endl;
-}
-
-static void closeScope(string scopeName) {
-	cout << "close scope: " << scopeName << endl;
-}
-
-static void closeScope(string functionName, string specifier, unsigned indirection) {
-	cout << "close scope: function " << specifier << ' ' << indirection << functionName << endl;
-}
 
 /*
  * Function:	error
@@ -94,11 +75,11 @@ static bool isSpecifier(int token)
  *		  void
  */
 
-static string specifier()
+static int specifier()
 {
-	string spec;
+	int spec;
 	if (isSpecifier(lookahead)) { 
-		lookahead == INT ? spec = "int": spec = "void";
+		spec = lookahead;
 		match(lookahead);
 	} else
 		error();
@@ -140,7 +121,7 @@ static unsigned pointers()
  *		  pointers identifier [ num ]
  */
 
-static void declarator(string spec)
+static void declarator(int spec)
 {
 	unsigned length, indirection; 
 	string name;
@@ -154,9 +135,9 @@ static void declarator(string spec)
 		length = strtoul(yytext, NULL, 0);
 		match(NUM);
 		match(']');
-		cout << "declare " << spec << ' ' << indirection << name << " as array of length " << length << endl;
+		declareVar(spec, indirection, name, length);
 	} else {
-		cout << "declare " << spec << ' ' << indirection << name << " as scalar" << endl;
+		declareVar(spec, indirection, name);
 	}
 }
 
@@ -178,7 +159,7 @@ static void declarator(string spec)
 
 static void declaration()
 {
-    string spec = specifier();
+    int spec = specifier();
     declarator(spec);
 
     while (lookahead == ',') {
@@ -622,11 +603,12 @@ static void statement()
 
 static void parameter()
 {
-	string spec = specifier();
+	int spec = specifier();
 	unsigned indirection = pointers();
 	string name = yytext;
 	match(ID);
-	cout << "declare parameter " << spec << ' ' <<  indirection << name << endl;
+	//cout << "declare parameter " << spec << ' ' <<  indirection << name << endl;
+	declareVar(spec, indirection, name);
 }
 
 
@@ -648,19 +630,24 @@ static void parameter()
 
 static void parameters()
 {
+	int spec;
 	if (lookahead == VOID) {
 		match(VOID);
+		spec = VOID;
 
 		if (lookahead == ')')
 			return;
 
-	} else
+	} else {
 		match(INT);
+		spec = VOID;
+	}
 
 	unsigned indirection = pointers();
 	string name = yytext;
 	match(ID);
-	cout << "declare parameter " << "int " << indirection << name << endl;
+	//cout << "declare parameter " << "int " << indirection << name << endl;
+	declareVar(spec, indirection, name);
 
 	while (lookahead == ',') {
 		match(',');
@@ -682,7 +669,7 @@ static void parameters()
  *		  pointers identifier ( parameters )
  */
 
-static void globalDeclarator(string spec)
+static void globalDeclarator(int spec)
 {
 	unsigned length, indirection;
 	indirection = pointers();
@@ -695,7 +682,8 @@ static void globalDeclarator(string spec)
 		match(NUM);
 		match(']');
 		
-		cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
+		//cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
+		declareVar(spec, indirection, name, length);
 
 	} else if (lookahead == '(') {
 		openScope();
@@ -704,9 +692,11 @@ static void globalDeclarator(string spec)
 		match(')');
 		closeScope();
 
-		cout << "declare function " << spec << ' ' << indirection << name <<  endl;
+		//cout << "declare function " << spec << ' ' << indirection << name <<  endl;
+		declareFunc(spec, indirection, name);
 	} else {
-		cout << "declare global " << spec << ' ' << indirection << name << endl;
+		//cout << "declare global " << spec << ' ' << indirection << name << endl;
+		declareVar(spec, indirection, name);
 	}
 }
 
@@ -721,7 +711,7 @@ static void globalDeclarator(string spec)
  * 		  , global-declarator remaining-declarators
  */
 
-static void remainingDeclarators(string spec)
+static void remainingDeclarators(int spec)
 {
     while (lookahead == ',') {
 	match(',');
@@ -746,7 +736,8 @@ static void remainingDeclarators(string spec)
 
 static void globalOrFunction()
 {
-	string name, spec;
+	string name;
+	int spec;
 	unsigned length, indirection;
 	spec = specifier();
 	indirection = pointers();
@@ -759,7 +750,8 @@ static void globalOrFunction()
 		match(NUM);
 		match(']');
 
-		cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
+		//cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
+		declareVar(spec, indirection, name, length);
 
 		remainingDeclarators(spec);
 
@@ -775,15 +767,18 @@ static void globalOrFunction()
 			statements();
 			closeScope();
 			match('}');
-			cout << "define function " << spec << ' ' << indirection << name << endl;
-
+			//cout << "define function " << spec << ' ' << indirection << name << endl;
+			defineFunc(spec, indirection, name);
 		} else {
 			closeScope();
-			cout << "declare function " << spec << ' ' << indirection << name << endl;
+			//cout << "declare function " << spec << ' ' << indirection << name << endl;
+			declareFunc(spec, indirection, name);
+
 			remainingDeclarators(spec);
 		}
 	} else {
-		cout << "declare global " << spec << ' ' << indirection << name << endl;
+		//cout << "declare global " << spec << ' ' << indirection << name << endl;
+		declareVar(spec, indirection, name);
 		remainingDeclarators(spec);
 	}
 }

@@ -3,6 +3,8 @@
 
 # include <string>
 # include "Scope.h"
+# include "Type.h"
+
 
 Scope *globalScope;
 Scope *currentScope;
@@ -40,6 +42,18 @@ void closeScope() {
 
 void declareVar(Symbol *symbol) {
 	currentScope->insert(symbol);
+}
+
+/* Array declaration */
+void declareVar(int spec, unsigned indirection, std::string name, unsigned length) {
+	Type newType(ARRAY, spec, indirection, length);
+	declareVar(new Symbol(name, newType));
+}
+
+/* Scalar declaration */
+void declareVar(int spec, unsigned indirection, std::string name) {
+	Type newType(SCALAR, spec, indirection);
+	declareVar(new Symbol(name, newType));
 }
 
 void checkVar(Symbol *symbol) {

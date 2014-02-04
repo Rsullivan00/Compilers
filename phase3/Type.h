@@ -21,7 +21,7 @@ public:
 	int kind() const { return _kind; }
 
 	/* Constructor */
-	Type(int kind, int specifier, int indirection, int length = 0, Parameters *parameters = NULL)
+	Type(int kind, int specifier, unsigned indirection, unsigned length = 0, Parameters *parameters = NULL)
 		:_kind(kind), _specifier(specifier), _indirection(indirection), _length(length), _parameters(parameters) {}
 
 	/* Operator overloads */
