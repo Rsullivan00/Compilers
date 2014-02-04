@@ -1,5 +1,5 @@
 CXXFLAGS	= -g -Wall
-OBJS		= lexer.o parser.o Type.o Symbol.o Scope.o
+OBJS		= lexer.o parser.o 
 PROG		= scc
 SRCS		= lexer.cpp
 
@@ -13,3 +13,5 @@ clean:;		$(RM) -f $(PROG) $(SRCS) core *.o
 
 lexer.cpp:	lexer.l
 		$(LEX) $(LFLAGS) -t lexer.l > lexer.cpp
+
+scc:		Type.h Symbol.h Scope.h

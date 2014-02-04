@@ -25,6 +25,10 @@ void error(int errorType, std::string name) {
 	}
 }
 
+/************************
+ * Scoping
+ * *********************/
+
 void openScope() {
 	Scope *scope = new Scope(currentScope);
 
@@ -39,6 +43,10 @@ void closeScope() {
 	delete currentScope;
 	currentScope = higherScope;
 }
+
+/*************************
+ * Variables
+ ************************/
 
 void declareVar(Symbol *symbol) {
 	currentScope->insert(symbol);
@@ -60,12 +68,28 @@ void checkVar(Symbol *symbol) {
 
 }
 
-void defineFunc(Symbol *func) {
+/*************************
+ * Functions
+ ************************/
 
+void defineFunc(Symbol *func) {
+	// need to remove any of this function's declarations
+	currentScope->insert(func);	
+}
+
+void defineFunc(int spec, unsigned indirection, std::string name) {
+	Type newType(FUNCTION, spec, indirection);
+	defineFunc(new Symbol(name, newType));
 }
 
 void declareFunc(Symbol *func) {
+	// need to remove any previous declarations
+	currentScope->insert(func);
+}
 
+void declareFunc(int spec, unsigned indirection, std::string name) {
+	Type newType(FUNCTION, spec, indirection);
+	defineFunc(new Symbol(name, newType));
 }
 
 void checkFunc(Symbol *func) {
