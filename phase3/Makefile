@@ -6,12 +6,10 @@ SRCS		= lexer.cpp
 
 all:		$(PROG)
 
-$(PROG):	$(SRCS) $(OBJS)
+$(PROG):	$(SRCS) $(OBJS) Type.h Symbol.h Scope.h
 		$(CXX) -o $(PROG) $(OBJS)
 
 clean:;		$(RM) -f $(PROG) $(SRCS) core *.o
 
 lexer.cpp:	lexer.l
 		$(LEX) $(LFLAGS) -t lexer.l > lexer.cpp
-
-scc:		Type.h Symbol.h Scope.h

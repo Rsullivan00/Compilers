@@ -49,6 +49,20 @@ void closeScope() {
  ************************/
 
 void declareVar(Symbol *symbol) {
+	if (currentScope == globalScope) {
+		// Check for error E3	
+		Symbol *prevDecl = currentScope->findByName(symbol->name());
+		if (prevDecl && prevDecl->type() != symbol->type())
+			error(3, symbol->name());
+	} else {
+		if (currentScope->find(symbol) != NULL) {
+			// E2 Error
+			error(2, symbol->name());
+		}
+	}
+
+	// Remove old declarations before inserting
+	currentScope->remove(symbol);
 	currentScope->insert(symbol);
 }
 
@@ -64,8 +78,12 @@ void declareVar(int spec, unsigned indirection, std::string name) {
 	declareVar(new Symbol(name, newType));
 }
 
+/* Checking to see if a variable has been declared in current or enclosing scopes. */
 void checkVar(Symbol *symbol) {
-
+	if (currentScope->lookup(symbol) == NULL)	
+		error(4, symbol->name());
+	if (symbol->type().specifier() == VOID)
+		error(5, symbol->name());
 }
 
 /*************************

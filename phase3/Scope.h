@@ -25,6 +25,15 @@ public:
 		return NULL;
 	}
 
+	Symbol *findByName(const std::string &name) {
+		for (unsigned i = 0; i < _symbols.size(); i++) {
+			if (name == _symbols[i].name())
+				return &_symbols[i];
+		}
+
+		return NULL;
+	}
+
 	Symbol *lookup(const Symbol *symbol) {
 		Symbol *location = find(symbol);
 	
