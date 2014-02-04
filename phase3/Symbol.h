@@ -8,15 +8,17 @@ class Symbol {
 	
 	string _name;
 	Type _type;
+	bool _defined;
 
 public:
 	/* Accessors */
 	const string &name() const { return _name; }
 	const Type &type() const { return _type; }
+	const bool &defined() const { return _defined; }
 
 	/* Constructors */
-	Symbol(const string &name, const Type &type)
-		:_name(name), _type(type) {}
+	Symbol(const string &name, const Type &type, const bool &defined = false)
+		:_name(name), _type(type), _defined(defined) {}
 
 	/* Operators */
 	bool operator==(const Symbol &rhs) const{

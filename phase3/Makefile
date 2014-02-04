@@ -6,7 +6,7 @@ SRCS		= lexer.cpp
 
 all:		$(PROG)
 
-$(PROG):	$(SRCS) $(OBJS) Type.h Symbol.h Scope.h
+$(PROG):	$(SRCS) $(OBJS) Type.h Symbol.h Scope.h checker.cpp
 		$(CXX) -o $(PROG) $(OBJS)
 
 clean:;		$(RM) -f $(PROG) $(SRCS) core *.o

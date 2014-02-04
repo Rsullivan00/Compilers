@@ -17,6 +17,7 @@ public:
 
 	/* Member functions */
 	Symbol *find(const Symbol *symbol) {
+		if (symbol == NULL) return NULL;
 		for (unsigned i = 0; i < _symbols.size(); i++) {
 			if (*symbol == _symbols[i])
 				return &_symbols[i];
@@ -42,10 +43,12 @@ public:
 
 	/* Mutators */
 	void insert(const Symbol *symbol) {
+		if (symbol == NULL) return;
 		_symbols.push_back(*symbol);
 	}
 
 	void remove(const Symbol *symbol) {
+		if (symbol == NULL) return;
 		for (unsigned i = 0; i < _symbols.size(); i++) {
 			if (*symbol == _symbols[i]) {
 				_symbols.erase(_symbols.begin() + i);

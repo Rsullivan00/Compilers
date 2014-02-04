@@ -548,8 +548,8 @@ static void statement()
 {
     if (lookahead == '{') {
 	match('{');
-	declarations();
 	openScope();
+	declarations();
 	statements();
 	closeScope();
 	match('}');

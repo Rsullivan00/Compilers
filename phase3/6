@@ -4,24 +4,24 @@
 # include <string>
 # include "Scope.h"
 # include "Type.h"
-# include "lexer.h" // For the report() function
+# include "lexer.l" // For the report() function
 
 Scope *globalScope;
 Scope *currentScope;
 
 void error(int errorType, std::string name) {
 	switch (errorType) {
-		case 1:	report("E1. redefinition of '%s'", name);
+		case 1:	report("E1. redefinition of %s'", name);
 			break;
-		case 2:	report("E2. redeclaration of '%s'", name);
+		case 2:	std::cerr << "E2. redeclaration of '" << name << "'" << std::endl;
 			break;
-		case 3:	report("E3. conflicting types for '%s'", name);
+		case 3:	std::cerr << "E3. conflicting types for '" << name << "'" << std::endl;
 			break;
-		case 4:	report("E4. '%s' undeclared", name);
+		case 4:	std::cerr << "E4. '" << name << "' undeclared" << std::endl;
 			break;
-		case 5:	report("E5. '%s' has void type", name);
+		case 5:	std::cerr << "E5. '" << name << "' has void type" << std::endl;
 			break;
-		default: report("Error not defined");
+		default: std::cout << "Error not defined" << std::endl;
 	}
 }
 
@@ -136,7 +136,7 @@ void declareFunc(int spec, unsigned indirection, std::string name) {
 }
 
 void checkFunc(int spec, unsigned indirection, std::string name) {
-	Symbol *func = globalScope->findByName(name); 
+	Symbol *func = globalScope->find(symbol); 
 	if (func == NULL) {
 		// Implicitly declare function
 		declareFunc(spec, indirection, name);
