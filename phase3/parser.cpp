@@ -613,9 +613,8 @@ static void parameter(Parameters &params)
 	unsigned indirection = pointers();
 	string name = yytext;
 	match(ID);
-	//cout << "declare parameter " << spec << ' ' <<  indirection << name << endl;
-	Type type(SCALAR, spec, indirection);
-	params.push_back(type);
+	cout << "declare parameter " << spec << ' ' <<  indirection << name << endl;
+	params.push_back(Type(SCALAR, spec, indirection));
 	declareVar(spec, indirection, name);
 }
 

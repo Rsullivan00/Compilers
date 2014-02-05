@@ -94,7 +94,6 @@ void checkVar(std::string name) {
  * Functions
  ************************/
 
-// NOTE: Still have to figure out how to handle parameters.
 void defineFunc(int spec, unsigned indirection, std::string name, Parameters *params = NULL) {
 	Type newType(FUNCTION, spec, indirection, 0, params);
 	Symbol *func = new Symbol(name, newType, true);
@@ -102,6 +101,8 @@ void defineFunc(int spec, unsigned indirection, std::string name, Parameters *pa
 	Symbol *prevDec = globalScope->findByName(name);
 	
 	if (prevDec) {
+		std::cout << prevDec->type() << std::endl;
+		std::cout << func->type() << std::endl;
 		if (prevDec->type() != func->type()) {
 			error(3, name);		
 		}
@@ -125,6 +126,8 @@ void declareFunc(int spec, unsigned indirection, std::string name, Parameters *p
 	Symbol *prevDec = globalScope->findByName(name);
 
 	if (prevDec) {
+		std::cout << prevDec->type() << std::endl;
+		std::cout << func->type() << std::endl;
 		if (prevDec->type() != func->type()) {
 			error(3, name);
 		} else if (*prevDec != *func) {

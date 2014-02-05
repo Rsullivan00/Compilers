@@ -10,6 +10,13 @@ declare function 272 0g
 opening scope
 closing scope
 declare function 272 1g
+1 272 0
+Params: 
+
+1 272 1
+Params: 
+
+FUNC
 opening scope
 declare parameter 2720q
 closing scope
@@ -18,9 +25,23 @@ opening scope
 declare parameter 2720z
 closing scope
 define function 272 1f
+1 272 1
+Params: 272 
+
+1 272 1
+Params: 272 
+
+FUNC
+FUNC
 declare global 272 0f
 declare global 272 0h
 opening scope
 closing scope
 declare function 272 0h
+2 272 0
+NULL
+
+1 272 0
+Params: 
+
 closing scope

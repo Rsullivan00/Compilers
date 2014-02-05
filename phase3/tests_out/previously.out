@@ -2,6 +2,8 @@ opening scope
 declare global 272 0a
 opening scope
 declare parameter 2720x
+declare parameter 272 0z
+declare parameter 272 0z
 declare 272 0x
 declare 272 0y
 opening scope
@@ -23,4 +25,12 @@ opening scope
 declare parameter 2720y
 closing scope
 define function 272 0g
+1 272 0
+Params: 272 
+
+1 272 0
+Params: 272 
+
+FUNC
+FUNC
 closing scope

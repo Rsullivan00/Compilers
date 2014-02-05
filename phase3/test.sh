@@ -14,8 +14,8 @@ for i in $tests; do
 done
 
 for i in $tests; do
-	result=$(diff "./$outputDir/$i.err" "./$solutionDir/$i.err");
-	if $result >/dev/null; then
+	result="$(diff "./${outputDir}/${i}.err" "./${solutionDir}/${i}.err")"
+	if $result >/dev/null 2>&1; then
 		echo "Passed $i";
 	else
 		echo "Failed $i";
