@@ -28,6 +28,7 @@ public:
 	bool operator==(const Type &rhs) const {
 		if (_kind != rhs._kind) return false;
 		if (_specifier != rhs._specifier) return false;
+		if (_indirection != rhs._indirection) return false;
 		if (_kind == ARRAY && _length != rhs._length) return false;
 		if (_kind == FUNCTION) {
 			if (_parameters == NULL)

@@ -1,0 +1,26 @@
+opening scope
+declare global 272 0x
+declare global 272 0x
+declare global 272 0a as array of length 10
+declare global 272 0a as array of length 5
+declare global 285 1x
+opening scope
+closing scope
+declare function 272 0g
+opening scope
+closing scope
+declare function 272 1g
+opening scope
+declare parameter 2720q
+closing scope
+declare function 272 1f
+opening scope
+declare parameter 2720z
+closing scope
+define function 272 1f
+declare global 272 0f
+declare global 272 0h
+opening scope
+closing scope
+declare function 272 0h
+closing scope

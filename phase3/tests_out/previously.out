@@ -1,0 +1,26 @@
+opening scope
+declare global 272 0a
+opening scope
+declare parameter 2720x
+declare 272 0x
+declare 272 0y
+opening scope
+declare 272 0y
+declare 272 0z
+closing scope
+opening scope
+declare 272 0x
+declare 272 0z
+closing scope
+closing scope
+define function 272 0f
+declare global 272 0a
+opening scope
+declare parameter 2720x
+closing scope
+define function 272 0g
+opening scope
+declare parameter 2720y
+closing scope
+define function 272 0g
+closing scope

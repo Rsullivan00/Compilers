@@ -135,8 +135,10 @@ static void declarator(int spec)
 		length = strtoul(yytext, NULL, 0);
 		match(NUM);
 		match(']');
+		cout << "declare " << spec << ' ' << indirection << name << "as array of length " << length << endl;
 		declareVar(spec, indirection, name, length);
 	} else {
+		cout << "declare " << spec << ' ' << indirection << name << endl;
 		declareVar(spec, indirection, name);
 	}
 }
@@ -220,9 +222,11 @@ static void primaryExpression()
 	match(NUM);
 
     } else if (lookahead == ID) {
+	string name = yytext;
 	match(ID);
 
 	if (lookahead == '(') {
+	    checkFunc(name);
 	    match('(');
 
 	    if (lookahead != ')') {
@@ -235,6 +239,8 @@ static void primaryExpression()
 	    }
 
 	    match(')');
+	} else {
+            checkVar(name);
 	}
 
     } else
@@ -601,13 +607,15 @@ static void statement()
  *		  specifier pointers ID
  */
 
-static void parameter()
+static void parameter(Parameters &params)
 {
 	int spec = specifier();
 	unsigned indirection = pointers();
 	string name = yytext;
 	match(ID);
 	//cout << "declare parameter " << spec << ' ' <<  indirection << name << endl;
+	Type type(SCALAR, spec, indirection);
+	params.push_back(type);
 	declareVar(spec, indirection, name);
 }
 
@@ -628,9 +636,10 @@ static void parameter()
  * 		  , parameter remaining-parameters
  */
 
-static void parameters()
+static void parameters(Parameters &params)
 {
 	int spec;
+
 	if (lookahead == VOID) {
 		match(VOID);
 		spec = VOID;
@@ -640,18 +649,20 @@ static void parameters()
 
 	} else {
 		match(INT);
-		spec = VOID;
+		spec = INT;
 	}
 
 	unsigned indirection = pointers();
 	string name = yytext;
 	match(ID);
-	//cout << "declare parameter " << "int " << indirection << name << endl;
+	params.push_back(Type(SCALAR, spec, indirection));
+
+	cout << "declare parameter " << spec << indirection << name << endl;
 	declareVar(spec, indirection, name);
 
 	while (lookahead == ',') {
 		match(',');
-		parameter();
+		parameter(params);
 	}
 }
 
@@ -682,20 +693,22 @@ static void globalDeclarator(int spec)
 		match(NUM);
 		match(']');
 		
-		//cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
+		cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
 		declareVar(spec, indirection, name, length);
 
 	} else if (lookahead == '(') {
 		openScope();
 		match('(');
-		parameters();
+		Parameters params;
+		parameters(params);
 		match(')');
 		closeScope();
 
-		//cout << "declare function " << spec << ' ' << indirection << name <<  endl;
-		declareFunc(spec, indirection, name);
+		cout << "declare function " << spec << ' ' << indirection << name <<  endl;
+		declareFunc(spec, indirection, name, &params);
+		params.clear();
 	} else {
-		//cout << "declare global " << spec << ' ' << indirection << name << endl;
+		cout << "declare global " << spec << ' ' << indirection << name << endl;
 		declareVar(spec, indirection, name);
 	}
 }
@@ -750,7 +763,7 @@ static void globalOrFunction()
 		match(NUM);
 		match(']');
 
-		//cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
+		cout << "declare global " << spec << ' ' << indirection << name << " as array of length " << length << endl;
 		declareVar(spec, indirection, name, length);
 
 		remainingDeclarators(spec);
@@ -758,7 +771,8 @@ static void globalOrFunction()
 	} else if (lookahead == '(') {
 		openScope();
 		match('(');
-		parameters();
+		Parameters params;
+		parameters(params);
 		match(')');
 
 		if (lookahead == '{') {
@@ -767,17 +781,20 @@ static void globalOrFunction()
 			statements();
 			closeScope();
 			match('}');
-			//cout << "define function " << spec << ' ' << indirection << name << endl;
-			defineFunc(spec, indirection, name);
+			cout << "define function " << spec << ' ' << indirection << name << endl;
+			defineFunc(spec, indirection, name, &params);
 		} else {
 			closeScope();
-			//cout << "declare function " << spec << ' ' << indirection << name << endl;
-			declareFunc(spec, indirection, name);
+			cout << "declare function " << spec << ' ' << indirection << name << endl;
+			declareFunc(spec, indirection, name, &params);
 
 			remainingDeclarators(spec);
 		}
+
+		params.clear();
+
 	} else {
-		//cout << "declare global " << spec << ' ' << indirection << name << endl;
+		cout << "declare global " << spec << ' ' << indirection << name << endl;
 		declareVar(spec, indirection, name);
 		remainingDeclarators(spec);
 	}

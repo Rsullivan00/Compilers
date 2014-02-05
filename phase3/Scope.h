@@ -38,7 +38,19 @@ public:
 	Symbol *lookup(const Symbol *symbol) {
 		Symbol *location = find(symbol);
 	
-		return (location != NULL ? location : _higherScope->lookup(symbol));
+		if (location != NULL)
+			return location;
+
+		return (!_higherScope ? NULL : _higherScope->lookup(symbol));
+	}
+
+	Symbol *lookupByName(const std::string &name) {
+		Symbol *location = findByName(name);
+
+		if (location != NULL) 
+			return location;
+
+		return (!_higherScope ? NULL : _higherScope->lookupByName(name));
 	}
 
 	/* Mutators */
