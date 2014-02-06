@@ -31,6 +31,11 @@ public:
 	bool operator!=(const Symbol &rhs) const{
 		return !(*this == rhs);
 	}
+
+	friend std::ostream& operator<<(std::ostream& out, const Symbol& symbol) {
+		out << "Name: " << symbol._name << " Type: " << symbol._type << " Defined: " << symbol._defined << std::endl;
+		return out;
+	}
 };
 
 # endif

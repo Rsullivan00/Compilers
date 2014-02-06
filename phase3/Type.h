@@ -31,12 +31,9 @@ public:
 		if (_indirection != rhs._indirection) return false;
 		if (_kind == ARRAY && _length != rhs._length) return false;
 		if (_kind == FUNCTION) {
-			std::cout << "FUNC" << std::endl;
 			if (_parameters == NULL) {
-			std::cout << "LEFT PARAMS NULL" << std::endl;
 				return true;
 			} else if (rhs._parameters == NULL) {
-			std::cout << "RIGHT PARAMS NULL" << std::endl;
 				return true;
 			} else {
 				return *_parameters == *rhs._parameters;
@@ -51,17 +48,17 @@ public:
 	}
 
 	friend std::ostream& operator<<(std::ostream& out, const Type& type) {
-		out << type.kind() << ' ' << type.specifier() << ' ' <<  type.indirection() << std::endl;
+		out << "Kind:" << type.kind() << " Spec:" << type.specifier() << " Ind: " <<  type.indirection();
+		out << "Params: ";
 		if (type._parameters == NULL)
 			out << "NULL";
 		else {
-			out << "Params: ";
 			for (unsigned i = 0; i < type._parameters->size(); i++)
 				out << (*(type._parameters))[i].specifier() << ' ';
 		}
-		out << std::endl;
 		return out;
 	}
+
 };
 
 # endif

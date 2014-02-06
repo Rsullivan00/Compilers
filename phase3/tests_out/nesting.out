@@ -1,27 +1,7 @@
-opening scope
-declare global 272 0x
-declare global 272 0a
-declare global 272 1b as array of length 298
-opening scope
-declare parameter 2720x
-declare parameter 272 0f
-declare 272 0y
 add
 eql
-opening scope
-declare 272 0x
-declare 272 0f
-declare 272 0y
-declare 272 0z
 add
 add
 gtn
-opening scope
-declare 272 0a
 index
 addr
-closing scope
-closing scope
-closing scope
-define function 272 1f
-closing scope

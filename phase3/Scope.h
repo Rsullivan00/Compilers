@@ -69,6 +69,20 @@ public:
 		}
 	}
 
+
+	friend std::ostream& operator<<(std::ostream& out, const Scope& scope) {
+		out << "Scope: ";
+		if (scope._symbols.size() == 0)
+			out << "empty " << std::endl;
+		for (unsigned i = 0; i < scope._symbols.size(); i++) {
+			out << "\t" << scope._symbols[i] << std::endl;
+		}
+		if (scope._higherScope)
+			out << "Higher Scope: " << std::endl << '\t' << *scope._higherScope;
+
+		return out;
+	}
+
 	/* Constructors */
 	Scope (Scope *higherScope, const Symbols symbols)
 		:_higherScope(higherScope), _symbols(symbols) {};

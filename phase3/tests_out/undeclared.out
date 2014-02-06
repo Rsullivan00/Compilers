@@ -1,22 +1,4 @@
-opening scope
-opening scope
-declare parameter 2720x
-closing scope
-define function 285 0f
-opening scope
-declare parameter 2720x
-declare parameter 272 0y
-declare 272 0z
 add
 add
-closing scope
-define function 272 0g
-declare global 272 0x
-opening scope
-declare parameter 2720y
-declare 272 0z
 add
 add
-closing scope
-define function 272 2h
-closing scope

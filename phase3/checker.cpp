@@ -30,17 +30,19 @@ void error(int errorType, std::string name) {
  * *********************/
 
 void openScope() {
-	std::cout << "opening scope" << std::endl;
+	//std::cout << "opening scope" << std::endl;
 	Scope *scope = new Scope(currentScope);
 
 	if (globalScope == NULL) 
 		globalScope = scope;
 
 	currentScope = scope;	
+	//std::cout << *currentScope << std::endl;
 }
 
 void closeScope() {
-	std::cout << "closing scope" << std::endl;
+	//std::cout << "closing scope" << std::endl;
+	//std::cout << *currentScope << std::endl;
 	Scope *higherScope = currentScope->higherScope();
 	delete currentScope;
 	currentScope = higherScope;
@@ -71,12 +73,16 @@ void declareVar(Symbol *symbol) {
 
 /* Array declaration */
 void declareVar(int spec, unsigned indirection, std::string name, unsigned length) {
+	if (spec == VOID && indirection == 0)
+		error(5, name);
 	Type newType(ARRAY, spec, indirection, length);
 	declareVar(new Symbol(name, newType));
 }
 
 /* Scalar declaration */
 void declareVar(int spec, unsigned indirection, std::string name) {
+	if (spec == VOID && indirection == 0)
+		error(5, name);
 	Type newType(SCALAR, spec, indirection);
 	declareVar(new Symbol(name, newType));
 }
@@ -101,8 +107,8 @@ void defineFunc(int spec, unsigned indirection, std::string name, Parameters *pa
 	Symbol *prevDec = globalScope->findByName(name);
 	
 	if (prevDec) {
-		std::cout << prevDec->type() << std::endl;
-		std::cout << func->type() << std::endl;
+		//std::cout << prevDec->type() << std::endl;
+		//std::cout << func->type() << std::endl;
 		if (prevDec->type() != func->type()) {
 			error(3, name);		
 		}
@@ -126,8 +132,8 @@ void declareFunc(int spec, unsigned indirection, std::string name, Parameters *p
 	Symbol *prevDec = globalScope->findByName(name);
 
 	if (prevDec) {
-		std::cout << prevDec->type() << std::endl;
-		std::cout << func->type() << std::endl;
+		//std::cout << prevDec->type() << std::endl;
+		//std::cout << func->type() << std::endl;
 		if (prevDec->type() != func->type()) {
 			error(3, name);
 		} else if (*prevDec != *func) {
@@ -142,7 +148,7 @@ void declareFunc(int spec, unsigned indirection, std::string name, Parameters *p
 		globalScope->remove(prevDec);
 	}
 
-	currentScope->insert(func);
+	globalScope->insert(func);
 }
 
 void checkFunc(std::string name) {
