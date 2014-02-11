@@ -54,6 +54,11 @@ public:
     unsigned indirection() const;
     unsigned length() const;
     Parameters *parameters() const;
+
+    /* Added */
+    bool isPredicate() const;
+    Type *promote() const;
+    Type *deref() const;
 };
 
 # endif /* TYPE_H */

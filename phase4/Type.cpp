@@ -20,6 +20,7 @@
 
 # include <cassert>
 # include "Type.h"
+# include "tokens.h"
 
 
 /*
@@ -219,4 +220,41 @@ Parameters *Type::parameters() const
 {
     assert(_kind == FUNCTION);
     return _parameters;
+}
+
+/*
+ * Stuff added by Rick
+ */
+
+bool Type::isPredicate() const 
+{
+    return _kind != FUNCTION;
+}
+
+Type *Type::promote() const 
+{
+    if (_kind == ARRAY)
+	return this;
+
+    return new Type(_specifier, _indirection + 1);
+} 
+
+Type *Type::deref() const 
+{
+    if (_indirection <= 0) {
+	return new Type();
+	//report("deref error");
+    }
+
+    if (_indirection == 1 && _specifier == VOID) {
+	return new Type();
+	//error(5, '*');;
+    }
+
+    if (_kind == FUNCTION) 
+	return new Type(_specifier, _indirection - 1, _parameters);
+    if (_kind == ARRAY)
+	return new Type(_specifier, _indirection - 1, _length);
+    /* else, SCALAR */
+    return new Type(_specifier, _indirection -1);
 }

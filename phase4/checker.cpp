@@ -30,13 +30,21 @@ using namespace std;
 
 static Scope *outermost, *toplevel;
 static const Type error;
+static const Type integer(INT, 0);
 
 static string redefined = "redefinition of '%s'";
 static string redeclared = "redeclaration of '%s'";
 static string conflicting = "conflicting types for '%s'";
 static string undeclared = "'%s' undeclared";
 static string void_object = "'%s' has void type";
-
+/* Added */
+static string E1 = "invalid return type";
+static string E2 = "invalid type for test expression";
+static string E3 = "invalid lvalue in expression";
+static string E4 = "invalid operands to binary %s";
+static string E5 = "invalid operand to unary %s";
+static string E6 = "called object is not a function";
+static string E7 = "invalid arguments to called function";
 
 /*
  * Function:	checkIfVoidObject
@@ -209,4 +217,38 @@ Symbol *checkFunction(const string &name)
 	symbol = declareFunction(name, Type(INT, 0, nullptr));
 
     return symbol;
+}
+
+/*
+ * Stuff added by Rick
+ */
+
+const Type *checkLogicalOr(const Type *left, const Type *right)
+{
+    if (left->isError() || right->isError())
+	return new Type();
+
+    Type *tempLeft = left->promote();
+    Type *tempRight = right->promote();
+
+    if (tempLeft->isPredicate() && tempRight->isPredicate())
+	return &integer; 
+
+    report(E4, "||");
+    return new Type();
+}
+
+const Type *checkLogicalAnd(const Type *left, const Type *right)
+{
+    if (left->isError() || right->isError())
+	return new Type();
+
+    Type *tempLeft = left->promote();
+    Type *tempRight = right->promote();
+
+    if (tempLeft->isPredicate() && tempRight->isPredicate())
+	return new Type(INT, 0);
+
+    report(E4, "||");
+    return new Type();
 }

@@ -16,7 +16,7 @@ using namespace std;
 
 static int lookahead;
 
-static const Type *expression();
+static const Type *expression(bool &lvalue);
 static void statement();
 
 
@@ -247,12 +247,13 @@ static void declarations()
 static const Type *primaryExpression(bool &lvalue)
 {
     const Type *type;
+    Symbol *symbol;
 
     string name;
 
     if (lookahead == '(') {
 	match('(');
-	type = expression();
+	type = expression(lvalue);
 	match(')');
 
     } else if (lookahead == STRING) {
@@ -270,21 +271,21 @@ static const Type *primaryExpression(bool &lvalue)
 	    match('(');
 
 	    if (lookahead != ')') {
-		expression();
+		expression(lvalue);
 
 		while (lookahead == ',') {
 		    match(',');
-		    expression();
+		    expression(lvalue);
 		}
 	    }
 
 	    match(')');
-	    Symbol *symbol = checkFunction(name);
-	    type = symbol->type();
+	    symbol = checkFunction(name);
+	    type = &(symbol->type());
 
 	} else
-	    Symbol *symbol = checkIdentifier(name);
-	    type = symbol->type();
+	    symbol = checkIdentifier(name);
+	    type = &(symbol->type());
 
     } else {
 	error();
@@ -543,6 +544,9 @@ static const Type *logicalAndExpression(bool &lvalue)
     while (lookahead == AND) {
 	match(AND);
 	right = equalityExpression(lvalue);
+
+	left = checkLogicalAnd(left, right);
+	lvalue = false;
     }
 
     return left;
@@ -569,6 +573,9 @@ static const Type *expression(bool &lvalue)
     while (lookahead == OR) {
 	match(OR);
 	right = logicalAndExpression(lvalue);
+
+	left = checkLogicalOr(left, right);
+	lvalue = false;
     }
 
     return left;
