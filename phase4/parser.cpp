@@ -397,13 +397,22 @@ static const Type *multiplicativeExpression(bool &lvalue)
 	    match('*');
 	    right = prefixExpression(lvalue);
 
+	    left = checkMultiplicative(left, right, "*");
+	    lvalue = false;
+
 	} else if (lookahead == '/') {
 	    match('/');
 	    right = prefixExpression(lvalue);
 
+	    left = checkMultiplicative(left, right, "/");
+	    lvalue = false;
+
 	} else if (lookahead == '%') {
 	    match('%');
 	    right = prefixExpression(lvalue);
+
+	    left = checkMultiplicative(left, right, "%");
+	    lvalue = false;
 
 	} else
 	    break;

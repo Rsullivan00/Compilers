@@ -57,8 +57,8 @@ public:
 
     /* Added */
     bool isPredicate() const;
-    Type *promote() const;
-    Type *deref() const;
+    const Type *promote() const;
+    const Type *deref() const;
 };
 
 # endif /* TYPE_H */

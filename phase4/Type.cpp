@@ -231,7 +231,7 @@ bool Type::isPredicate() const
     return _kind != FUNCTION;
 }
 
-Type *Type::promote() const 
+const Type *Type::promote() const 
 {
     if (_kind == ARRAY)
 	return this;
@@ -239,7 +239,7 @@ Type *Type::promote() const
     return new Type(_specifier, _indirection + 1);
 } 
 
-Type *Type::deref() const 
+const Type *Type::deref() const 
 {
     if (_indirection <= 0) {
 	return new Type();

@@ -8,6 +8,7 @@
 # ifndef CHECKER_H
 # define CHECKER_H
 # include "Scope.h"
+# include <string>
 
 Scope *openScope();
 Scope *closeScope();
@@ -17,7 +18,8 @@ Symbol *declareFunction(const std::string &name, const Type &type);
 Symbol *declareVariable(const std::string &name, const Type &type);
 Symbol *checkIdentifier(const std::string &name);
 Symbol *checkFunction(const std::string &name);
-const Type *checkLogicalOr(Type *left, Type *right);
-const Type *checkLogicalAnd(Type *left, Type *right);
+const Type *checkLogicalOr(const Type *left, const Type *right);
+const Type *checkLogicalAnd(const Type *left, const Type *right);
+const Type *checkMultiplicative(const Type *left, const Type *right, const std::string &op);
 
 # endif /* CHECKER_H */

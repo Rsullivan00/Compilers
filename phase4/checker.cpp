@@ -228,11 +228,11 @@ const Type *checkLogicalOr(const Type *left, const Type *right)
     if (left->isError() || right->isError())
 	return new Type();
 
-    Type *tempLeft = left->promote();
-    Type *tempRight = right->promote();
+    const Type *tempLeft = left->promote();
+    const Type *tempRight = right->promote();
 
     if (tempLeft->isPredicate() && tempRight->isPredicate())
-	return &integer; 
+	return new Type(INT, 0); 
 
     report(E4, "||");
     return new Type();
@@ -243,12 +243,24 @@ const Type *checkLogicalAnd(const Type *left, const Type *right)
     if (left->isError() || right->isError())
 	return new Type();
 
-    Type *tempLeft = left->promote();
-    Type *tempRight = right->promote();
+    const Type *tempLeft = left->promote();
+    const Type *tempRight = right->promote();
 
     if (tempLeft->isPredicate() && tempRight->isPredicate())
 	return new Type(INT, 0);
 
-    report(E4, "||");
+    report(E4, "&&");
     return new Type();
+}
+
+const Type *checkMultiplicative(const Type *left, const Type *right, const string &op) {
+    if (left->isError() || right->isError())
+	return new Type();
+
+    if (left->specifier() != INT || right->specifier() != INT) {
+	report(E4, op); 
+	return new Type();
+    }
+
+    return new Type(INT, 0);
 }
