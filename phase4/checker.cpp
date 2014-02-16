@@ -226,13 +226,13 @@ Symbol *checkFunction(const string &name)
 const Type *checkLogicalOr(const Type *left, const Type *right)
 {
     if (left->isError() || right->isError())
-	return new Type();
+        return new Type();
 
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
     if (tempLeft->isPredicate() && tempRight->isPredicate())
-	return new Type(INT, 0); 
+        return new Type(INT, 0); 
 
     report(E4, "||");
     return new Type();
@@ -241,13 +241,13 @@ const Type *checkLogicalOr(const Type *left, const Type *right)
 const Type *checkLogicalAnd(const Type *left, const Type *right)
 {
     if (left->isError() || right->isError())
-	return new Type();
+        return new Type();
 
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
     if (tempLeft->isPredicate() && tempRight->isPredicate())
-	return new Type(INT, 0);
+        return new Type(INT, 0);
 
     report(E4, "&&");
     return new Type();
@@ -255,12 +255,121 @@ const Type *checkLogicalAnd(const Type *left, const Type *right)
 
 const Type *checkMultiplicative(const Type *left, const Type *right, const string &op) {
     if (left->isError() || right->isError())
-	return new Type();
+        return new Type();
 
     if (left->specifier() != INT || right->specifier() != INT) {
-	report(E4, op); 
-	return new Type();
+        report(E4, op); 
+        return new Type();
     }
 
     return new Type(INT, 0);
 }
+
+/*
+    int x int -> int
+    ptr(T) x int -> T   where T != void
+    
+For addition only:
+    int x ptr(T) -> T   where T != void
+Subtraction only:
+    ptr(T) x ptr(T) -> int  where T != void
+
+    Note: We only have INT and VOID as possible specifiers.
+*/
+const Type *checkAdditive(const Type *left, const Type *right, const string &op) {
+    if (left->isError() || right->isError())
+        return new Type();
+
+    if (left->specifier() == VOID || right->specifier() == VOID) {
+        report(E4, op);
+        return new Type();
+    }
+
+    /* Invariant: Both left and right must have specifier INT */
+        
+    const Type *tempLeft = left->promote();
+    const Type *tempRight = right->promote();
+
+    if (op == "+" && tempRight->indirection() > 0 && !left->indirection())
+        return new Type(INT, tempRight->indirection() - 1);
+
+    if (tempLeft->indirection() > 0 && !tempRight->indirection())
+        return new Type(INT, tempLeft->indirection() - 1);
+
+    /* All other cases return int */
+    return new Type(INT, 0); 
+}
+    
+
+const Type *checkRelational(const Type *left, const Type *right, const string &op) {
+     if (left->isError() || right->isError())
+        return new Type();   
+
+    const Type *tempLeft = left->promote();
+    const Type *tempRight = right->promote();
+
+    if (*tempLeft != *tempRight || !tempLeft->isPredicate() || !tempRight->isPredicate()) {
+        report(E4, op);
+        return new Type();
+    }
+
+    return new Type(INT, 0);
+} 
+
+const Type *checkEquality(const Type *left, const Type *right, const string &op) {
+    if (left->isError() || right->isError())
+        return new Type();   
+
+    const Type *tempLeft = left->promote();
+    const Type *tempRight = right->promote();
+
+    if (*tempLeft != *tempRight) {
+        report(E4, op);
+        return new Type();
+    }
+
+    return new Type(INT, 0);
+}
+
+
+const Type *checkPostfix(const Type *left, const Type *right) {
+    if (left->isError() || right->isError())
+        return new Type();   
+
+    const Type *tempLeft = left->promote();
+    const Type *tempRight = right->promote();
+
+    if (tempLeft->specifier() == VOID || !tempLeft->indirection() || tempRight->specifier() != INT) {
+        report(E4, "[]");
+        return new Type();
+    }
+
+    return new Type(INT, tempLeft->indirection() - 1);
+}
+
+/* This function can be improved */
+const Type *checkReturn(const Type *type) {
+    if (type->isError())
+        return new Type();
+
+    const Type *returnType = type->promote();
+    const Type *funcType = toplevel->enclosing()->symbols().back()->type().promote();
+
+    if (!returnType->isPredicate() || !funcType->isPredicate()) {
+        report(E1);
+        return new Type();
+    }
+
+    if (*returnType == *funcType)
+        return returnType;
+
+    if (returnType->indirection() > 0 && funcType->indirection() == 1 && funcType->specifier() == VOID)
+        return returnType;
+  
+    if (funcType->indirection() > 0 && returnType->indirection() == 1 && returnType->specifier() == VOID)
+        return returnType;
+
+    report(E1);
+    return new Type();
+}
+

@@ -21,5 +21,10 @@ Symbol *checkFunction(const std::string &name);
 const Type *checkLogicalOr(const Type *left, const Type *right);
 const Type *checkLogicalAnd(const Type *left, const Type *right);
 const Type *checkMultiplicative(const Type *left, const Type *right, const std::string &op);
+const Type *checkAdditive(const Type *left, const Type *right, const std::string &op);
+const Type *checkRelational(const Type *left, const Type *right, const std::string &op);
+const Type *checkEquality(const Type *left, const Type *right, const std::string &op);
+const Type *checkPostfix(const Type *left, const Type *right);
+const Type *checkReturn(const Type *type);
 
 # endif /* CHECKER_H */

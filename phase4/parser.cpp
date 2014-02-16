@@ -312,9 +312,11 @@ static const Type *postfixExpression(bool &lvalue)
     left = primaryExpression(lvalue);
 
     while (lookahead == '[') {
-	match('[');
-	right = expression(lvalue);
-	match(']');
+        match('[');
+        right = expression(lvalue);
+        left = checkPostfix(left, right);
+        lvalue = true;
+        match(']');
     }
 
     return left;
@@ -443,10 +445,14 @@ static const Type *additiveExpression(bool &lvalue)
 	if (lookahead == '+') {
 	    match('+');
 	    right = multiplicativeExpression(lvalue);
+        left = checkAdditive(left, right, "+");
+        lvalue = false;
 
 	} else if (lookahead == '-') {
 	    match('-');
 	    right = multiplicativeExpression(lvalue);
+        left = checkAdditive(left, right, "-");
+        lvalue = false;
 
 	} else
 	    break;
@@ -480,18 +486,26 @@ static const Type *relationalExpression(bool &lvalue)
 	if (lookahead == '<') {
 	    match('<');
 	    right = additiveExpression(lvalue);
+        left = checkRelational(left, right, "<");
+        lvalue = false;
 
 	} else if (lookahead == '>') {
 	    match('>');
 	    right = additiveExpression(lvalue);
+        left = checkRelational(left, right, ">");
+        lvalue = false;
 
 	} else if (lookahead == LEQ) {
 	    match(LEQ);
 	    right = additiveExpression(lvalue);
+        left = checkRelational(left, right, "<=");
+        lvalue = false;
 
 	} else if (lookahead == GEQ) {
 	    match(GEQ);
 	    right = additiveExpression(lvalue);
+        left = checkRelational(left, right, ">=");
+        lvalue = false;
 
 	} else
 	    break;
@@ -521,10 +535,14 @@ static const Type *equalityExpression(bool &lvalue)
 	if (lookahead == EQL) {
 	    match(EQL);
 	    right = relationalExpression(lvalue);
+        left = checkEquality(left, right, "=="); 
+        lvalue = false;
 
 	} else if (lookahead == NEQ) {
 	    match(NEQ);
 	    right = relationalExpression(lvalue);
+        left = checkEquality(left, right, "!="); 
+        lvalue = false;
 
 	} else
 	    break;
@@ -629,6 +647,7 @@ static void statements()
 
 static void statement()
 {
+	const Type *left, *right;
     bool lvalue;
 
     if (lookahead == '{') {
@@ -641,7 +660,8 @@ static void statement()
 
     } else if (lookahead == RETURN) {
 	match(RETURN);
-	expression(lvalue);
+	left = expression(lvalue);
+    left = checkReturn(left);
 	match(';');
 
     } else if (lookahead == WHILE) {
@@ -664,7 +684,6 @@ static void statement()
 	}
 
     } else {
-	const Type *left, *right;
 	left = expression(lvalue);
 
 	if (lookahead == '=') {
