@@ -25,6 +25,7 @@ const Type *checkAdditive(const Type *left, const Type *right, const std::string
 const Type *checkRelational(const Type *left, const Type *right, const std::string &op);
 const Type *checkEquality(const Type *left, const Type *right, const std::string &op);
 const Type *checkPostfix(const Type *left, const Type *right);
-const Type *checkReturn(const Type *type);
+void checkReturn(const Type *type);
+void checkStatementExpression(const Type *type);
 
 # endif /* CHECKER_H */

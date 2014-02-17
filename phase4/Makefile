@@ -1,4 +1,4 @@
-CXXFLAGS	= -g -Wall
+CXXFLAGS	= -g #-Wall
 OBJS		= checker.o lexer.o parser.o Scope.o Symbol.o Type.o
 PROG		= scc
 SRCS		= lexer.cpp

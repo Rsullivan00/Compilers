@@ -348,28 +348,67 @@ const Type *checkPostfix(const Type *left, const Type *right) {
 }
 
 /* This function can be improved */
-const Type *checkReturn(const Type *type) {
+void checkReturn(const Type *type) {
     if (type->isError())
-        return new Type();
+        return;
 
     const Type *returnType = type->promote();
     const Type *funcType = toplevel->enclosing()->symbols().back()->type().promote();
 
     if (!returnType->isPredicate() || !funcType->isPredicate()) {
         report(E1);
-        return new Type();
+        return;
     }
 
     if (*returnType == *funcType)
-        return returnType;
+        return;
 
     if (returnType->indirection() > 0 && funcType->indirection() == 1 && funcType->specifier() == VOID)
-        return returnType;
+        return;
   
     if (funcType->indirection() > 0 && returnType->indirection() == 1 && returnType->specifier() == VOID)
-        return returnType;
+        return;
 
     report(E1);
-    return new Type();
+    return;
 }
 
+void checkStatementExpression(const Type *type) {
+    if (type->isError())
+        return;
+       
+    const Type *tempType = type->promote();
+
+    if (!tempType->isPredicate()) {
+        report(E2);
+        return;
+    }
+}
+
+void checkAssignment(const Type *left, const Type *right, bool &lvalue) {
+    if (!lvalue) {
+        report(E3);
+        return;
+    }
+
+    if (!areCompatible(left, right)) {
+        report(E4, "=");
+        return;
+    }
+}
+
+bool areCompatible(const Type *left, const Type *right) {
+    if (!returnType->isPredicate() || !funcType->isPredicate())
+        return false;
+
+    if (*left == *right)
+        return true;
+
+    if (left->indirection() > 0 && right->indirection() == 1 && right->specifier() == VOID)
+        return true;
+  
+    if (right->indirection() > 0 && left->indirection() == 1 && left->specifier() == VOID)
+        return true;
+
+    return false;
+}

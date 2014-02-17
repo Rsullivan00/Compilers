@@ -661,20 +661,22 @@ static void statement()
     } else if (lookahead == RETURN) {
 	match(RETURN);
 	left = expression(lvalue);
-    left = checkReturn(left);
+    checkReturn(left);
 	match(';');
 
     } else if (lookahead == WHILE) {
 	match(WHILE);
 	match('(');
-	expression(lvalue);
+	left = expression(lvalue);
+    checkStatementExpression(left);
 	match(')');
 	statement();
 
     } else if (lookahead == IF) {
 	match(IF);
 	match('(');
-	expression(lvalue);
+	left = expression(lvalue);
+    checkStatementExpression(left);
 	match(')');
 	statement();
 
