@@ -258,7 +258,8 @@ static const Type *primaryExpression(bool &lvalue)
 
     } else if (lookahead == STRING) {
 	match(STRING);
-	type = new Type(INT);	
+	type = new Type(STRING);	
+    lvalue = false;
 
     } else if (lookahead == NUM) {
 	match(NUM); type = new Type(INT);
@@ -282,10 +283,12 @@ static const Type *primaryExpression(bool &lvalue)
 	    match(')');
 	    symbol = checkFunction(name);
 	    type = &(symbol->type());
+        lvalue = false;
 
 	} else
 	    symbol = checkIdentifier(name);
 	    type = &(symbol->type());
+        // Do we need to assign lvalue here?
 
     } else {
 	error();
@@ -337,6 +340,7 @@ static const Type *postfixExpression(bool &lvalue)
  *		  sizeof prefix-expression
  */
 
+// TODO: WRITE CHECKING FOR THIS
 static const Type *prefixExpression(bool &lvalue)
 {
     const Type *type;
@@ -354,7 +358,7 @@ static const Type *prefixExpression(bool &lvalue)
     } else if (lookahead == '*') {
 	match('*');
 	type = prefixExpression(lvalue);
-	lvalue = false;
+	lvalue = true;
 
     } else if (lookahead == '&') {
 	match('&');
@@ -691,6 +695,7 @@ static void statement()
 	if (lookahead == '=') {
 	    match('=');
 	    right = expression(lvalue);
+        checkAssignment(left, right, lvalue);
 	}
 
 	match(';');

@@ -323,7 +323,7 @@ const Type *checkEquality(const Type *left, const Type *right, const string &op)
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
-    if (*tempLeft != *tempRight) {
+    if (!areCompatible(tempLeft, tempRight)) {
         report(E4, op);
         return new Type();
     }
@@ -355,22 +355,10 @@ void checkReturn(const Type *type) {
     const Type *returnType = type->promote();
     const Type *funcType = toplevel->enclosing()->symbols().back()->type().promote();
 
-    if (!returnType->isPredicate() || !funcType->isPredicate()) {
+    if (!areCompatible(returnType, funcType)) {
         report(E1);
         return;
     }
-
-    if (*returnType == *funcType)
-        return;
-
-    if (returnType->indirection() > 0 && funcType->indirection() == 1 && funcType->specifier() == VOID)
-        return;
-  
-    if (funcType->indirection() > 0 && returnType->indirection() == 1 && returnType->specifier() == VOID)
-        return;
-
-    report(E1);
-    return;
 }
 
 void checkStatementExpression(const Type *type) {
@@ -385,20 +373,20 @@ void checkStatementExpression(const Type *type) {
     }
 }
 
-void checkAssignment(const Type *left, const Type *right, bool &lvalue) {
+void checkAssignment(const Type *left, const Type *right, const bool &lvalue) {
     if (!lvalue) {
         report(E3);
         return;
     }
 
-    if (!areCompatible(left, right)) {
+    if (!areCompatible(left->promote(), right->promote())) {
         report(E4, "=");
         return;
     }
 }
 
 bool areCompatible(const Type *left, const Type *right) {
-    if (!returnType->isPredicate() || !funcType->isPredicate())
+    if (!left->isPredicate() || !right->isPredicate())
         return false;
 
     if (*left == *right)

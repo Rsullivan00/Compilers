@@ -27,5 +27,7 @@ const Type *checkEquality(const Type *left, const Type *right, const std::string
 const Type *checkPostfix(const Type *left, const Type *right);
 void checkReturn(const Type *type);
 void checkStatementExpression(const Type *type);
+void checkAssignment(const Type *left, const Type *right, const bool &lvalue);
+bool areCompatible(const Type *left, const Type *right);
 
 # endif /* CHECKER_H */
