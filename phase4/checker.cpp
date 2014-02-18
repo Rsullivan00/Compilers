@@ -226,136 +226,130 @@ Symbol *checkFunction(const string &name)
 const Type *checkLogicalOr(const Type *left, const Type *right)
 {
     if (left->isError() || right->isError())
-        return new Type();
+        return &error; 
 
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
     if (tempLeft->isPredicate() && tempRight->isPredicate())
-        return new Type(INT, 0); 
+        return &integer; 
 
     report(E4, "||");
-    return new Type();
+    return &error;
 }
 
 const Type *checkLogicalAnd(const Type *left, const Type *right)
 {
     if (left->isError() || right->isError())
-        return new Type();
+        return &error;
 
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
     if (tempLeft->isPredicate() && tempRight->isPredicate())
-        return new Type(INT, 0);
+        return &integer;
 
     report(E4, "&&");
-    return new Type();
+    return &error;
 }
 
 const Type *checkMultiplicative(const Type *left, const Type *right, const string &op) {
     if (left->isError() || right->isError())
-        return new Type();
+        return &error;
 
     if (left->specifier() != INT || right->specifier() != INT) {
         report(E4, op); 
-        return new Type();
+        return &error;
     }
 
-    return new Type(INT, 0);
+    return &integer;
 }
 
 /*
     int x int -> int
-    ptr(T) x int -> T   where T != void
+    ptr(T) x int -> ptr(T)   where T != void
     
 For addition only:
-    int x ptr(T) -> T   where T != void
+    int x ptr(T) -> ptr(T)   where T != void
 Subtraction only:
     ptr(T) x ptr(T) -> int  where T != void
 
-    Note: We only have INT and VOID as possible specifiers.
 */
 const Type *checkAdditive(const Type *left, const Type *right, const string &op) {
     if (left->isError() || right->isError())
-        return new Type();
+        return &error;
 
     if (left->specifier() == VOID || right->specifier() == VOID) {
         report(E4, op);
-        return new Type();
+        return &error;
     }
 
-    /* Invariant: Both left and right must have specifier INT */
-        
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
     if (op == "+" && tempRight->indirection() > 0 && !left->indirection())
-        return new Type(INT, tempRight->indirection() - 1);
+        return new Type(INT, tempRight->indirection());
 
     if (tempLeft->indirection() > 0 && !tempRight->indirection())
-        return new Type(INT, tempLeft->indirection() - 1);
+        return new Type(INT, tempLeft->indirection());
 
     /* All other cases return int */
-    return new Type(INT, 0); 
+    return &integer; 
 }
     
 
 const Type *checkRelational(const Type *left, const Type *right, const string &op) {
      if (left->isError() || right->isError())
-        return new Type();   
+        return &error;   
 
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
     if (*tempLeft != *tempRight || !tempLeft->isPredicate() || !tempRight->isPredicate()) {
         report(E4, op);
-        return new Type();
+        return &error;
     }
 
-    return new Type(INT, 0);
+    return &integer;
 } 
 
 const Type *checkEquality(const Type *left, const Type *right, const string &op) {
     if (left->isError() || right->isError())
-        return new Type();   
+        return &error;   
 
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
     if (!areCompatible(tempLeft, tempRight)) {
         report(E4, op);
-        return new Type();
+        return &error;
     }
 
-    return new Type(INT, 0);
+    return &integer;
 }
 
 
 const Type *checkPostfix(const Type *left, const Type *right) {
     if (left->isError() || right->isError())
-        return new Type();   
+        return &error;   
 
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
-    if (tempLeft->specifier() == VOID || !tempLeft->indirection() || tempRight->specifier() != INT) {
+    if (tempLeft->specifier() == VOID || !tempLeft->indirection() || *tempRight != integer) {
         report(E4, "[]");
-        return new Type();
+        return &error;
     }
 
     return new Type(INT, tempLeft->indirection() - 1);
 }
 
 /* This function can be improved */
-void checkReturn(const Type *type) {
-    if (type->isError())
+void checkReturn(const Type *returnType, const Type *funcType) {
+    if (returnType->isError() || funcType->isError())
         return;
 
-    const Type *returnType = type->promote();
-    const Type *funcType = toplevel->enclosing()->symbols().back()->type().promote();
-
-    if (!areCompatible(returnType, funcType)) {
+    if (!areCompatible(returnType->promote(), funcType->promote())) {
         report(E1);
         return;
     }
@@ -374,6 +368,9 @@ void checkStatementExpression(const Type *type) {
 }
 
 void checkAssignment(const Type *left, const Type *right, const bool &lvalue) {
+    if (left->isError() || right->isError())
+	return;
+
     if (!lvalue) {
         report(E3);
         return;
@@ -383,6 +380,99 @@ void checkAssignment(const Type *left, const Type *right, const bool &lvalue) {
         report(E4, "=");
         return;
     }
+}
+
+const Type *checkDeref(const Type *type) {
+    if (type->isError())
+	return &error;
+
+    const Type *tempType = type->promote();
+
+    if (!tempType->indirection() || tempType->specifier() == VOID) {
+	report(E5, "*");
+	return &error;
+    }
+
+    return new Type(tempType->specifier(), tempType->indirection() - 1);
+}
+
+const Type *checkAddress(const Type *type, const bool &lvalue) {
+    if (type->isError())
+	return &error;
+
+    if (!lvalue) {
+	report(E3);
+	return &error;
+    }
+
+    const Type *tempType = type->promote();
+
+    return new Type(tempType->specifier(), tempType->indirection() + 1);
+}
+
+const Type *checkNot(const Type *type) {
+    if (type->isError())
+	return &error;
+
+    if (!type->isPredicate()) {
+	report(E5, "!");
+	return &error;
+    } 
+
+    return &integer;
+}
+
+const Type *checkNegation(const Type *type) {
+    if (type->isError())
+	return &error;
+
+    if (type->specifier() != INT) {
+	report(E5, "-");
+	return &error;
+    }
+
+    return &integer;
+}
+
+const Type *checkSizeOf(const Type *type) {
+    if (type->isError())
+	return &error;
+
+    if (!type->isPredicate() || type->specifier() == VOID) {
+	report(E5, "sizeof");
+	return &error;
+    }	
+
+    return &integer;
+}
+
+const Type *checkFunction(const Type *type, std::vector<const Type *> &params) {
+    if (type->isError())
+	return &error;
+
+    if (!type->isFunction()) {
+	report(E6);
+	return &error;
+    }
+
+    if (type->parameters() != NULL) {
+	if (type->parameters()->size() != params.size()) {
+	    report(E7);
+	    return &error;
+	}
+
+	for(int i = 0; i < type->parameters()->size(); i++) {
+	    if (!areCompatible(params.at(i)->promote(), type->parameters()->at(i).promote())) {
+		report(E7);
+		return &error;
+	    }
+	}
+    }
+
+    if (type->isArray())
+	return new Type(type->specifier(), type->indirection(), type->length());
+
+    return new Type(type->specifier(), type->indirection());
 }
 
 bool areCompatible(const Type *left, const Type *right) {

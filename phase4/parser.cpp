@@ -17,7 +17,7 @@ using namespace std;
 static int lookahead;
 
 static const Type *expression(bool &lvalue);
-static void statement();
+static void statement(const Type *funcType);
 
 
 /*
@@ -270,25 +270,30 @@ static const Type *primaryExpression(bool &lvalue)
 
 	if (lookahead == '(') {
 	    match('(');
+	    std::vector<const Type *> params;
 
 	    if (lookahead != ')') {
-		expression(lvalue);
+		params.push_back(expression(lvalue));
 
 		while (lookahead == ',') {
 		    match(',');
-		    expression(lvalue);
+		    params.push_back(expression(lvalue));
 		}
 	    }
 
 	    match(')');
 	    symbol = checkFunction(name);
 	    type = &(symbol->type());
-        lvalue = false;
+	    type = checkFunction(type, params);
+	    lvalue = false;
 
 	} else
 	    symbol = checkIdentifier(name);
 	    type = &(symbol->type());
-        // Do we need to assign lvalue here?
+	    if (type->isScalar())
+		lvalue = true;
+	    else
+		lvalue = false;
 
     } else {
 	error();
@@ -340,7 +345,6 @@ static const Type *postfixExpression(bool &lvalue)
  *		  sizeof prefix-expression
  */
 
-// TODO: WRITE CHECKING FOR THIS
 static const Type *prefixExpression(bool &lvalue)
 {
     const Type *type;
@@ -348,31 +352,35 @@ static const Type *prefixExpression(bool &lvalue)
     if (lookahead == '!') {
 	match('!');
 	type = prefixExpression(lvalue);
+	type = checkNot(type);
 	lvalue = false;
 
     } else if (lookahead == '-') {
 	match('-');
 	type = prefixExpression(lvalue);
+	type = checkNegation(type);
 	lvalue = false;
 
     } else if (lookahead == '*') {
 	match('*');
 	type = prefixExpression(lvalue);
+	type = checkDeref(type);
 	lvalue = true;
 
     } else if (lookahead == '&') {
 	match('&');
 	type = prefixExpression(lvalue);
+	type = checkAddress(type, lvalue);
 	lvalue = false;
 
     } else if (lookahead == SIZEOF) {
 	match(SIZEOF);
 	type = prefixExpression(lvalue);
+	type = checkSizeOf(type);
 	lvalue = false;
 
     } else {
 	type = postfixExpression(lvalue);
-	lvalue = false;
     }
 
     return type;
@@ -626,10 +634,10 @@ static const Type *expression(bool &lvalue)
  *		  statement statements
  */
 
-static void statements()
+static void statements(const Type *funcType)
 {
     while (lookahead != '}')
-	statement();
+	statement(funcType);
 }
 
 
@@ -649,7 +657,7 @@ static void statements()
  *		  expression ;
  */
 
-static void statement()
+static void statement(const Type *funcType)
 {
 	const Type *left, *right;
     bool lvalue;
@@ -658,35 +666,35 @@ static void statement()
 	match('{');
 	openScope();
 	declarations();
-	statements();
+	statements(funcType);
 	closeScope();
 	match('}');
 
     } else if (lookahead == RETURN) {
 	match(RETURN);
 	left = expression(lvalue);
-    checkReturn(left);
+	checkReturn(left, funcType);
 	match(';');
 
     } else if (lookahead == WHILE) {
 	match(WHILE);
 	match('(');
 	left = expression(lvalue);
-    checkStatementExpression(left);
+	checkStatementExpression(left);
 	match(')');
-	statement();
+	statement(funcType);
 
     } else if (lookahead == IF) {
 	match(IF);
 	match('(');
 	left = expression(lvalue);
-    checkStatementExpression(left);
+	checkStatementExpression(left);
 	match(')');
-	statement();
+	statement(funcType);
 
 	if (lookahead == ELSE) {
 	    match(ELSE);
-	    statement();
+	    statement(funcType);
 	}
 
     } else {
@@ -694,8 +702,9 @@ static void statement()
 
 	if (lookahead == '=') {
 	    match('=');
+	    bool templvalue = lvalue;
 	    right = expression(lvalue);
-        checkAssignment(left, right, lvalue);
+	    checkAssignment(left, right, templvalue);
 	}
 
 	match(';');
@@ -882,7 +891,7 @@ static void globalOrFunction()
 	    defineFunction(name, Type(typespec, indirection, params));
 	    match('{');
 	    declarations();
-	    statements();
+	    statements(new Type(typespec, indirection, params));
 	    closeScope();
 	    match('}');
 

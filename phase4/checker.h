@@ -25,9 +25,15 @@ const Type *checkAdditive(const Type *left, const Type *right, const std::string
 const Type *checkRelational(const Type *left, const Type *right, const std::string &op);
 const Type *checkEquality(const Type *left, const Type *right, const std::string &op);
 const Type *checkPostfix(const Type *left, const Type *right);
-void checkReturn(const Type *type);
+void checkReturn(const Type *returnType, const Type *funcType);
 void checkStatementExpression(const Type *type);
 void checkAssignment(const Type *left, const Type *right, const bool &lvalue);
+const Type *checkDeref(const Type *type);
+const Type *checkAddress(const Type *type, const bool &lvalue);
+const Type *checkNot(const Type *type);
+const Type *checkNegation(const Type *type);
+const Type *checkSizeOf(const Type *type);
+const Type *checkFunction(const Type *type, std::vector<const Type *> &params);
 bool areCompatible(const Type *left, const Type *right);
 
 # endif /* CHECKER_H */

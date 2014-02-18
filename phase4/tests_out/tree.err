@@ -1,0 +1,43 @@
+line 13: invalid operand to unary sizeof
+line 13: invalid arguments to called function
+line 13: invalid operands to binary =
+line 14: invalid operands to binary []
+line 15: invalid operands to binary []
+line 16: invalid operands to binary []
+line 17: invalid operands to binary []
+line 18: invalid operands to binary []
+line 18: invalid operands to binary []
+line 18: invalid arguments to called function
+line 19: invalid operands to binary []
+line 20: invalid operands to binary []
+line 20: invalid operands to binary []
+line 20: invalid arguments to called function
+line 22: invalid return type
+line 28: invalid return type
+line 30: invalid operands to binary []
+line 31: invalid operands to binary []
+line 31: invalid arguments to called function
+line 31: invalid return type
+line 33: invalid operands to binary []
+line 34: invalid operands to binary []
+line 34: invalid arguments to called function
+line 34: invalid return type
+line 36: invalid return type
+line 43: invalid operands to binary []
+line 45: invalid operands to binary []
+line 45: invalid arguments to called function
+line 46: invalid operands to binary []
+line 46: invalid arguments to called function
+line 54: invalid operands to binary []
+line 55: invalid operands to binary []
+line 55: invalid arguments to called function
+line 57: invalid operands to binary []
+line 57: invalid arguments to called function
+line 74: invalid operands to binary =
+line 75: invalid operands to binary =
+line 76: invalid operands to binary =
+line 77: invalid operands to binary =
+line 78: invalid operands to binary =
+line 79: invalid operands to binary =
+line 80: invalid operands to binary =
+line 81: invalid operands to binary =

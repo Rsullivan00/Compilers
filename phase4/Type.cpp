@@ -233,7 +233,7 @@ bool Type::isPredicate() const
 
 const Type *Type::promote() const 
 {
-    if (_kind == ARRAY)
+    if (_kind != ARRAY)
 	return this;
 
     return new Type(_specifier, _indirection + 1);
