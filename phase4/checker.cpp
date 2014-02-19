@@ -336,50 +336,55 @@ const Type *checkPostfix(const Type *left, const Type *right) {
     const Type *tempLeft = left->promote();
     const Type *tempRight = right->promote();
 
-    if (tempLeft->specifier() == VOID || !tempLeft->indirection() || *tempRight != integer) {
+    if ((tempLeft->specifier() == VOID && tempLeft->indirection() == 1) || *tempRight != integer) {
         report(E4, "[]");
         return &error;
     }
 
-    return new Type(INT, tempLeft->indirection() - 1);
+    return new Type(tempLeft->specifier(), tempLeft->indirection() - 1);
 }
 
-/* This function can be improved */
-void checkReturn(const Type *returnType, const Type *funcType) {
+const Type *checkReturn(const Type *returnType, const Type *funcType) {
     if (returnType->isError() || funcType->isError())
-        return;
+        return &error;
 
     if (!areCompatible(returnType->promote(), funcType->promote())) {
         report(E1);
-        return;
+        return &error;
     }
+
+    return returnType; 
 }
 
-void checkStatementExpression(const Type *type) {
+const Type *checkStatementExpression(const Type *type) {
     if (type->isError())
-        return;
+        return &error;
        
     const Type *tempType = type->promote();
 
     if (!tempType->isPredicate()) {
         report(E2);
-        return;
+        return &error;
     }
+
+    return tempType;
 }
 
-void checkAssignment(const Type *left, const Type *right, const bool &lvalue) {
+const Type *checkAssignment(const Type *left, const Type *right, const bool &lvalue) {
     if (left->isError() || right->isError())
-	return;
+	return &error;
 
     if (!lvalue) {
         report(E3);
-        return;
+        return &error;
     }
 
     if (!areCompatible(left->promote(), right->promote())) {
         report(E4, "=");
-        return;
+        return &error;
     }
+
+    return left;
 }
 
 const Type *checkDeref(const Type *type) {
@@ -438,7 +443,7 @@ const Type *checkSizeOf(const Type *type) {
     if (type->isError())
 	return &error;
 
-    if (!type->isPredicate() || type->specifier() == VOID) {
+    if (!type->isPredicate() || (type->specifier() == VOID && !type->indirection())) {
 	report(E5, "sizeof");
 	return &error;
     }	
@@ -469,14 +474,11 @@ const Type *checkFunction(const Type *type, std::vector<const Type *> &params) {
 	}
     }
 
-    if (type->isArray())
-	return new Type(type->specifier(), type->indirection(), type->length());
-
-    return new Type(type->specifier(), type->indirection());
+    return new Type(type->promote()->specifier(), type->promote()->indirection());
 }
 
 bool areCompatible(const Type *left, const Type *right) {
-    if (!left->isPredicate() || !right->isPredicate())
+    if (!left->isPredicate() || !right->isPredicate()) 
         return false;
 
     if (*left == *right)

@@ -25,9 +25,9 @@ const Type *checkAdditive(const Type *left, const Type *right, const std::string
 const Type *checkRelational(const Type *left, const Type *right, const std::string &op);
 const Type *checkEquality(const Type *left, const Type *right, const std::string &op);
 const Type *checkPostfix(const Type *left, const Type *right);
-void checkReturn(const Type *returnType, const Type *funcType);
-void checkStatementExpression(const Type *type);
-void checkAssignment(const Type *left, const Type *right, const bool &lvalue);
+const Type *checkReturn(const Type *returnType, const Type *funcType);
+const Type *checkStatementExpression(const Type *type);
+const Type *checkAssignment(const Type *left, const Type *right, const bool &lvalue);
 const Type *checkDeref(const Type *type);
 const Type *checkAddress(const Type *type, const bool &lvalue);
 const Type *checkNot(const Type *type);

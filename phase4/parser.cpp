@@ -252,52 +252,52 @@ static const Type *primaryExpression(bool &lvalue)
     string name;
 
     if (lookahead == '(') {
-	match('(');
-	type = expression(lvalue);
-	match(')');
+        match('(');
+        type = expression(lvalue);
+        match(')');
 
     } else if (lookahead == STRING) {
-	match(STRING);
-	type = new Type(STRING);	
-    lvalue = false;
+        match(STRING);
+        type = new Type(STRING);	
+        lvalue = false;
 
     } else if (lookahead == NUM) {
-	match(NUM); type = new Type(INT);
-	lvalue = false;
+        match(NUM); 
+        type = new Type(INT, 0);
+        lvalue = false;
 
     } else if (lookahead == ID) {
-	name = expect(ID);
+        name = expect(ID);
 
-	if (lookahead == '(') {
-	    match('(');
-	    std::vector<const Type *> params;
+        if (lookahead == '(') {
+            match('(');
+            std::vector<const Type *> params;
 
-	    if (lookahead != ')') {
-		params.push_back(expression(lvalue));
+            if (lookahead != ')') {
+                params.push_back(expression(lvalue));
 
-		while (lookahead == ',') {
-		    match(',');
-		    params.push_back(expression(lvalue));
-		}
-	    }
+                while (lookahead == ',') {
+                    match(',');
+                    params.push_back(expression(lvalue));
+                }
+            }
 
-	    match(')');
-	    symbol = checkFunction(name);
-	    type = &(symbol->type());
-	    type = checkFunction(type, params);
-	    lvalue = false;
+            match(')');
+            symbol = checkFunction(name);
+            type = checkFunction(&(symbol->type()), params);
+            lvalue = false;
 
-	} else
-	    symbol = checkIdentifier(name);
-	    type = &(symbol->type());
-	    if (type->isScalar())
-		lvalue = true;
-	    else
-		lvalue = false;
-
+        } else {
+            symbol = checkIdentifier(name);
+            type = &(symbol->type());
+            if (type->isScalar())
+                lvalue = true;
+            else
+                lvalue = false;
+        }
     } else {
-	error();
-	type = new Type();
+        error();
+        type = new Type();
     }
 
     return type;
@@ -495,32 +495,34 @@ static const Type *relationalExpression(bool &lvalue)
     left = additiveExpression(lvalue);
 
     while (1) {
-	if (lookahead == '<') {
-	    match('<');
-	    right = additiveExpression(lvalue);
-        left = checkRelational(left, right, "<");
-        lvalue = false;
+        if (lookahead == '<') {
+            match('<');
+            right = additiveExpression(lvalue);
+            left = checkRelational(left, right, "<");
+            lvalue = false;
 
-	} else if (lookahead == '>') {
-	    match('>');
-	    right = additiveExpression(lvalue);
-        left = checkRelational(left, right, ">");
-        lvalue = false;
+        } else if (lookahead == '>') {
+            match('>');
+            right = additiveExpression(lvalue);
+            left = checkRelational(left, right, ">");
+            lvalue = false;
 
-	} else if (lookahead == LEQ) {
-	    match(LEQ);
-	    right = additiveExpression(lvalue);
-        left = checkRelational(left, right, "<=");
-        lvalue = false;
+        } else if (lookahead == LEQ) {
+            match(LEQ);
+            right = additiveExpression(lvalue);
+            left = checkRelational(left, right, "<=");
+            lvalue = false;
 
-	} else if (lookahead == GEQ) {
-	    match(GEQ);
-	    right = additiveExpression(lvalue);
-        left = checkRelational(left, right, ">=");
-        lvalue = false;
+        } else if (lookahead == GEQ) {
+            match(GEQ);
+            right = additiveExpression(lvalue);
+            left = checkRelational(left, right, ">=");
+            lvalue = false;
 
-	} else
-	    break;
+        } else {
+            break;
+
+        }
     }
 
     return left;
@@ -673,14 +675,14 @@ static void statement(const Type *funcType)
     } else if (lookahead == RETURN) {
 	match(RETURN);
 	left = expression(lvalue);
-	checkReturn(left, funcType);
+	left = checkReturn(left, new Type(funcType->specifier(), funcType->indirection()));
 	match(';');
 
     } else if (lookahead == WHILE) {
 	match(WHILE);
 	match('(');
 	left = expression(lvalue);
-	checkStatementExpression(left);
+	left = checkStatementExpression(left);
 	match(')');
 	statement(funcType);
 
@@ -688,7 +690,7 @@ static void statement(const Type *funcType)
 	match(IF);
 	match('(');
 	left = expression(lvalue);
-	checkStatementExpression(left);
+	left = checkStatementExpression(left);
 	match(')');
 	statement(funcType);
 
@@ -704,7 +706,7 @@ static void statement(const Type *funcType)
 	    match('=');
 	    bool templvalue = lvalue;
 	    right = expression(lvalue);
-	    checkAssignment(left, right, templvalue);
+	    left = checkAssignment(left, right, templvalue);
 	}
 
 	match(';');
