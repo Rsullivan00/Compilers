@@ -20,10 +20,12 @@ class Symbol {
     Type _type;
 
 public:
+    int _offset;    
     int attributes;
     Symbol(const string &name, const Type &type);
     const string &name() const;
     const Type &type() const;
+    int offset() const;    
 };
 
 # endif /* SYMBOL_H */

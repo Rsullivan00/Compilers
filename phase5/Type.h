@@ -37,7 +37,6 @@ class Type {
     enum { ARRAY, ERROR, FUNCTION, SCALAR } _kind;
 
 public:
-    int _offset;    
 
     Type();
     Type(int specifier, unsigned indirection = 0);

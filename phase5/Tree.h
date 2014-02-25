@@ -114,6 +114,7 @@ class Call : public Expression {
 
 public:
     Call(const Symbol *id, const Expressions &args, const Type &type);
+    void generate();
 };
 
 
@@ -294,6 +295,7 @@ class Assignment : public Statement {
 
 public:
     Assignment(Expression *left, Expression *right);
+    void generate();
 };
 
 

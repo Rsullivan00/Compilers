@@ -224,11 +224,6 @@ Parameters *Type::parameters() const
     return _parameters;
 }
 
-int Type::offset() const
-{
-    return _offset;
-}
-
 
 /*
  * Function:	Type::isInteger

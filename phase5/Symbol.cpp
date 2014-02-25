@@ -45,3 +45,9 @@ const Type &Symbol::type() const
 {
     return _type;
 }
+
+int Symbol::offset() const
+{
+    return _offset;
+}
+

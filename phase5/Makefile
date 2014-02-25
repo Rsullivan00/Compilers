@@ -1,8 +1,7 @@
 CXXFLAGS	= -g -Wall
-OBJS		= checker.o lexer.o parser.o Scope.o Symbol.o Tree.o Type.o
+OBJS		= checker.o lexer.o parser.o Scope.o Symbol.o Tree.o Type.o allocator.o generator.o
 PROG		= scc
 SRCS		= lexer.cpp
-
 
 all:		$(PROG)
 

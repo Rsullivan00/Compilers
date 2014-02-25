@@ -892,6 +892,7 @@ static void globalOrFunction()
 	    match('}');
 
 	    function = new Function(symbol, new Block(functionScope, stmts));
+	    function->generate();
 
 	} else {
 	    closeScope();
