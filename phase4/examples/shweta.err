@@ -1,0 +1,10 @@
+line 7: invalid return type
+line 12: invalid return type
+line 25: invalid lvalue in expression
+line 30: invalid lvalue in expression
+line 34: invalid operands to binary =
+line 48: invalid lvalue in expression
+line 54: invalid operands to binary ==
+line 56: invalid operands to binary =
+line 60: invalid operands to binary =
+line 62: invalid arguments to called function

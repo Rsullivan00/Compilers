@@ -362,7 +362,7 @@ const Type *checkStatementExpression(const Type *type) {
        
     const Type *tempType = type->promote();
 
-    if (!tempType->isPredicate()) {
+    if (!tempType->isPredicate() || tempType->specifier() == STRING) {
         report(E2);
         return &error;
     }

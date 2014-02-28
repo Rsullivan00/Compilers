@@ -1,0 +1,40 @@
+line 8: 'g' has void type
+line 9: conflicting types for 'g'
+line 13: conflicting types for 'h'
+line 22: invalid operand to unary *
+line 23: invalid return type
+line 28: invalid type for test expression
+line 34: conflicting types for 'j'
+line 37: invalid operands to binary ==
+line 38: invalid return type
+line 41: invalid return type
+line 46: invalid return type
+line 47: invalid lvalue in expression
+line 49: invalid operands to binary >
+line 50: invalid return type
+line 51: invalid lvalue in expression
+line 54: invalid return type
+line 55: invalid operand to unary *
+line 56: invalid return type
+line 60: redefinition of 'j'
+line 62: invalid return type
+line 65: invalid operand to unary *
+line 66: invalid return type
+line 71: invalid arguments to called function
+line 83: called object is not a function
+line 85: invalid arguments to called function
+line 90: invalid operands to binary %
+line 92: invalid lvalue in expression
+line 94: invalid lvalue in expression
+line 96: invalid operand to unary *
+line 98: invalid operand to unary !
+line 100: invalid operand to unary !
+line 102: invalid operand to unary sizeof
+line 104: invalid operands to binary []
+line 108: invalid operand to unary *
+line 110: called object is not a function
+line 111: invalid arguments to called function
+line 112: invalid operands to binary =
+line 113: 'q' undeclared
+line 114: invalid operand to unary *
+line 115: invalid operand to unary -
