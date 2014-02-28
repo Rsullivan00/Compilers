@@ -353,6 +353,9 @@ class Function : public Node {
 
 public:
     Function(const Symbol *id, Block *body);
+    
+    void printPrologue();
+    void printEpilogue(const int &funcSize);
     void generate();
     void allocate(int &offset);
 };

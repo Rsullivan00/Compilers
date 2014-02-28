@@ -657,6 +657,7 @@ static Statement *statement()
 	closeScope();
 	match('}');
 	stmt = new Block(decls, stmts);
+    stmt->generate();
 
     } else if (lookahead == RETURN) {
 	match(RETURN);
