@@ -11,6 +11,7 @@
 # include "checker.h"
 # include "tokens.h"
 # include "lexer.h"
+# include "Tree.h"
 
 using namespace std;
 
@@ -21,7 +22,8 @@ static Scope *functionScope;
 static Expression *expression();
 static Statement *statement();
 
-vector<Symbol *> globals;
+extern vector<Symbol *> globals;
+
 
 /*
  * Function:	error
@@ -174,10 +176,10 @@ static void declarator(int typespec)
     if (lookahead == '[') {
 	match('[');
     /* Should this be a separate vector? */
-	globals.push_back(declareVariable(name, Type(typespec, indirection, number())));
+	declareVariable(name, Type(typespec, indirection, number()));
 	match(']');
     } else
-	globals.push_back(declareVariable(name, Type(typespec, indirection)));
+	declareVariable(name, Type(typespec, indirection));
 }
 
 
@@ -729,7 +731,7 @@ static Type parameter()
     name = expect(ID);
 
     Type type = Type(typespec, indirection);
-    globals.push_back(declareVariable(name, type));
+    declareVariable(name, type);
     return type;
 }
 
@@ -776,7 +778,7 @@ static Parameters *parameters()
     name = expect(ID);
 
     type = Type(typespec, indirection);
-    globals.push_back(declareVariable(name, type));
+    declareVariable(name, type);
     params->push_back(type);
 
     while (lookahead == ',') {
@@ -924,6 +926,15 @@ int main()
     while (lookahead != DONE)
 	globalOrFunction();
 
+    if (globals.size()) {
+	cout << "\t.data" << endl;
+	for (unsigned i = 0; i < globals.size(); i++) {
+	    if (globals[i]->type().isArray())
+		cout << "\t.comm\t" << globals[i]->name() << ", " << globals[i]->type().length() * 4 << ", 4"  << endl;
+	    else
+		cout << "\t.comm\t" << globals[i]->name() << ", 4, 4"  << endl;
+	}
+    }
     closeScope();
     exit(EXIT_SUCCESS);
 }

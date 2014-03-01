@@ -21,7 +21,7 @@
 #       runTests towers
 #       runTests
 
-DIR = "/home/rick/Desktop/Compilers/phase5/"
+DIR = "/home/rsulliva/COEN175/phase5/"
 RESULTS = DIR + "results/"
 EXAMPLES = DIR + "examples/"
 

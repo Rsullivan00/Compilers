@@ -2,21 +2,21 @@ towers:
 	pushl	%ebp
 	movl	%esp, %ebp
 	subl	$towers.size, %esp
-	pushl	12(%ebp)
-	pushl	8(%ebp)
 	pushl	16(%ebp)
 	pushl	20(%ebp)
-	call	print
+	pushl	12(%ebp)
+	pushl	8(%ebp)
+	call	call_towers
 	addl	$16, %esp
-	pushl	12(%ebp)
 	pushl	16(%ebp)
-	call	print
+	pushl	12(%ebp)
+	call	print_move
 	addl	$8, %esp
-	pushl	16(%ebp)
 	pushl	12(%ebp)
-	pushl	8(%ebp)
+	pushl	16(%ebp)
 	pushl	20(%ebp)
-	call	print
+	pushl	8(%ebp)
+	call	call_towers
 	addl	$16, %esp
 .towers.epilogue:
 	movl	%ebp, %esp
@@ -32,11 +32,11 @@ main:
 	subl	$main.size, %esp
 	movl	$3, %eax
 	movl	%eax, -4(%ebp)
-	pushl	3
-	pushl	2
-	pushl	1
+	pushl	$3
+	pushl	$2
+	pushl	$1
 	pushl	-4(%ebp)
-	call	print
+	call	towers
 	addl	$16, %esp
 .main.epilogue:
 	movl	%ebp, %esp

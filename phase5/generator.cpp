@@ -7,6 +7,8 @@
 
 using namespace std;
 
+vector<Symbol *> globals;
+
 void Function::printPrologue() {
     cout << _id->name() << ':' << endl;
     cout << "\tpushl\t\%ebp" << endl;
@@ -29,9 +31,10 @@ void Node::generate() {
 }
 
 void Block::generate() {
-    for(unsigned i = 0; i < _stmts.size(); i++) {
+    for (unsigned i = 0; i < _stmts.size(); i++) {
         _stmts[i]->generate();
     }
+
 }
 
 void Function::generate() {
@@ -39,13 +42,13 @@ void Function::generate() {
     allocate(offset);
     printPrologue();
     _body->generate();
-    printEpilogue(abs(offset + 4));
+    printEpilogue(abs((double)offset + 4));
 }
 
 void Assignment::generate() {
     _left->generate();
     _right->generate();
-    cout << "\tmovl\t$" << *_right << ", \%eax" << endl;
+    cout << "\tmovl\t" << *_right << ", \%eax" << endl;
     cout << "\tmovl\t\%eax, " << *_left << endl;
 }
 
@@ -61,7 +64,7 @@ void Identifier::generate() {
 
 void Number::generate() {
     stringstream ss;
-    ss << value();
+    ss << "$" << value();
     _operand = ss.str();
 }
 
@@ -71,6 +74,6 @@ void Call::generate() {
         cout << "\tpushl\t" << *_args[i] << endl;
     }
 
-    cout << "\tcall\tprint" << endl;
+    cout << "\tcall\t" << _id->name() << endl;
     cout << "\taddl\t$" << (_args.size() * 4) << ", \%esp" << endl;
 }

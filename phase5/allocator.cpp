@@ -16,7 +16,7 @@ void Block::allocate(int &offset) {
 void Function::allocate(int &offset) {
     int numParams = _id->type().parameters()->size();
 
-    for (int i = (int)(numParams - 1); i >= 0; i--) {
+    for (int i = 0; i < numParams; i++) {
         _body->declarations()->symbols()[i]->_offset = offset;
         /* For this assignment, all parameters are 4 bytes. */
         offset += 4;
