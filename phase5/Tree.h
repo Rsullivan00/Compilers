@@ -89,6 +89,7 @@ class Identifier : public Expression {
     const Symbol *_symbol;
 
 public:
+    void generate();
     Identifier(const Symbol *symbol);
     const Symbol *symbol() const;
 };
@@ -100,6 +101,7 @@ class Number : public Expression {
     string _value;
 
 public:
+    void generate();
     Number(unsigned value);
     Number(const string &value);
     const string &value() const;

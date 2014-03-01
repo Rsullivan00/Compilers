@@ -1,0 +1,103 @@
+#!/usr/bin/env ruby
+
+# Mazi Arjomand
+# 2/28/2014
+#
+# Test Script For Compilers Phase 5
+# To Use:
+#   1. Change "DIR" to the directory of your phase 5
+#   2. Put the examples dir under your phase5 dir
+#   3. run
+#
+# If running on the DC machines, first run "setup ruby"
+#
+# To Add additional test cases:
+#   1. Add the name prefix to "test_prefixes
+#   2. put the necessary test files in "examples/"
+#
+# Usage: runTests [optional test prefix]
+#   Runs all tests if no  arguments are given
+#   Ex:
+#       runTests towers
+#       runTests
+
+DIR = "/home/rick/Desktop/Compilers/phase5/"
+RESULTS = DIR + "results/"
+EXAMPLES = DIR + "examples/"
+
+
+test_prefixes = ["array", "global", "local", "putchar", "towers"]
+
+def AsLib(prefix)
+    prefix + "-lib.c"
+end
+def AsC(prefix)
+    prefix + ".c"
+end
+def AsOut(prefix)
+    prefix + ".out"
+end
+def AsAssem(prefix)
+    prefix + ".s"
+end
+def AsResults(prefix)
+    prefix + ".diff"
+end
+
+test_to_do = nil
+test_to_do = ARGV[0] if (ARGV.size > 0)
+
+def test(prefix)
+    return false if !(File.exists?(EXAMPLES + AsC(prefix)))
+    puts "************* '#{prefix}' Test Case *************"
+    puts ":: Compiling..."
+    system("#{DIR}scc < #{EXAMPLES + AsC(prefix)} > #{RESULTS + AsAssem(prefix)}")
+    puts ":: Building executable..."
+    status = system("gcc -m32 #{RESULTS + AsAssem(prefix)} #{(EXAMPLES + AsLib(prefix)) if File.exists?(EXAMPLES + AsLib(prefix))} -o #{RESULTS + prefix}")
+    if(!status)
+        puts ":: Compilation Failed, ending test case"
+        return false
+    end
+    puts ":: Running..."
+    system("#{RESULTS + prefix} > #{RESULTS + AsOut(prefix)}")
+    out = `diff #{EXAMPLES + AsOut(prefix)} #{RESULTS + AsOut(prefix)}`
+    if(out.empty?)
+        puts ":: '#{prefix}' Passed"
+    else
+        puts ":: '#{prefix}' Failed"
+        File.open("#{RESULTS + AsResults(prefix)}", 'w') { |file| file.write(out) }
+    end
+    puts "*************"
+    return out.empty?
+end
+
+system("mkdir #{RESULTS}") if !File.directory?(RESULTS)
+
+system("rm #{RESULTS}*")
+status = system("cd #{DIR}; make clean; make")
+if(!status)
+    puts ":: Make Failed, exiting"
+    exit
+end
+
+if(test_to_do != nil)
+    test(ARGV[0])
+else
+    count = 0
+    fails = []
+    test_prefixes.each do |test_case|
+        fails << test_case if !test(test_case)
+    end
+    puts "************* Summary *************"
+    puts ":: (#{fails.size}/#{test_prefixes.size}) Failed"
+    if(fails.size > 0)
+        print ":: Cases failed: "
+        fails.each do |failed_case|
+            print "'" + failed_case + "' "
+        end
+        print "\n"
+    end
+    puts "*************"
+end
+
+system("cd #{DIR}; make clean")

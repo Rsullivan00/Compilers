@@ -1,5 +1,6 @@
 # include <iostream>
 # include <string>
+# include <sstream>
 # include <cmath>
 # include "Tree.h"
 # include "lexer.h"
@@ -10,9 +11,11 @@ void Function::printPrologue() {
     cout << _id->name() << ':' << endl;
     cout << "\tpushl\t\%ebp" << endl;
     cout << "\tmovl\t\%esp, \%ebp" << endl;
+    cout << "\tsubl\t$" << _id->name() << ".size, \%esp" << endl;
 }
 
 void Function::printEpilogue(const int &funcSize) {
+    cout << "." << _id->name() << ".epilogue:" << endl;
     cout << "\tmovl\t\%ebp, \%esp" << endl;
     cout << "\tpopl\t\%ebp" << endl;
     cout << "\tret" << endl << endl;
@@ -40,9 +43,34 @@ void Function::generate() {
 }
 
 void Assignment::generate() {
-    // Need to handle globals vs locals
-    cout << "\tmovl\t$" << _right->operand() << ", \%ebp" << endl;
-    cout << "\tmovl\t\%eax, " << _left->operand() << endl;
+    _left->generate();
+    _right->generate();
+    cout << "\tmovl\t$" << *_right << ", \%eax" << endl;
+    cout << "\tmovl\t\%eax, " << *_left << endl;
 }
 
-void Call::generate() {}
+void Identifier::generate() {
+   if (_symbol->offset() == 0) {
+        _operand = _symbol->name();
+    } else {
+        stringstream ss;
+        ss << (_symbol->offset()) << "(\%ebp)";
+        _operand = ss.str();
+    }
+}
+
+void Number::generate() {
+    stringstream ss;
+    ss << value();
+    _operand = ss.str();
+}
+
+void Call::generate() {
+    for (int i = _args.size() - 1; i >=  0; i--) {
+        _args[i]->generate();
+        cout << "\tpushl\t" << *_args[i] << endl;
+    }
+
+    cout << "\tcall\tprint" << endl;
+    cout << "\taddl\t$" << (_args.size() * 4) << ", \%esp" << endl;
+}

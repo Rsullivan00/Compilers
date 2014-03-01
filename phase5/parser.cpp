@@ -21,6 +21,7 @@ static Scope *functionScope;
 static Expression *expression();
 static Statement *statement();
 
+vector<Symbol *> globals;
 
 /*
  * Function:	error
@@ -172,10 +173,11 @@ static void declarator(int typespec)
 
     if (lookahead == '[') {
 	match('[');
-	declareVariable(name, Type(typespec, indirection, number()));
+    /* Should this be a separate vector? */
+	globals.push_back(declareVariable(name, Type(typespec, indirection, number())));
 	match(']');
     } else
-	declareVariable(name, Type(typespec, indirection));
+	globals.push_back(declareVariable(name, Type(typespec, indirection)));
 }
 
 
@@ -727,7 +729,7 @@ static Type parameter()
     name = expect(ID);
 
     Type type = Type(typespec, indirection);
-    declareVariable(name, type);
+    globals.push_back(declareVariable(name, type));
     return type;
 }
 
@@ -774,7 +776,7 @@ static Parameters *parameters()
     name = expect(ID);
 
     type = Type(typespec, indirection);
-    declareVariable(name, type);
+    globals.push_back(declareVariable(name, type));
     params->push_back(type);
 
     while (lookahead == ',') {
@@ -810,7 +812,7 @@ static void globalDeclarator(int typespec)
 
     if (lookahead == '[') {
 	match('[');
-	declareVariable(name, Type(typespec, indirection, number()));
+	globals.push_back(declareVariable(name, Type(typespec, indirection, number())));
 	match(']');
 
     } else if (lookahead == '(') {
@@ -820,7 +822,7 @@ static void globalDeclarator(int typespec)
 	closeScope();
 
     } else
-	declareVariable(name, Type(typespec, indirection));
+	globals.push_back(declareVariable(name, Type(typespec, indirection)));
 }
 
 
@@ -874,7 +876,7 @@ static void globalOrFunction()
 
     if (lookahead == '[') {
 	match('[');
-	declareVariable(name, Type(typespec, indirection, number()));
+	globals.push_back(declareVariable(name, Type(typespec, indirection, number())));
 	match(']');
 	remainingDeclarators(typespec);
 
@@ -902,7 +904,7 @@ static void globalOrFunction()
 	}
 
     } else {
-	declareVariable(name, Type(typespec, indirection));
+	globals.push_back(declareVariable(name, Type(typespec, indirection)));
 	remainingDeclarators(typespec);
     }
 }
