@@ -33,7 +33,14 @@ test_prefixes = ["add",
 		"divide",
 		"not",
 		"negate",
-		"dereference"]
+		"dereference",
+		"lessThan",
+		"greaterThan",
+		"lessThanEqual",
+		"greaterThanEqual",
+		"equal",
+		"notEqual",
+		"tree"]
 
 def AsLib(prefix)
     prefix + "-lib.c"

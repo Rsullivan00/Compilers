@@ -5,20 +5,26 @@ foo:
 	movl	%eax, a
 	movl	$2, %eax
 	movl	%eax, d
+
 # &a
 	leal	a, %eax
-	%eax, -4
+	movl	%eax, -4(%ebp)
+
 	movl	-4(%ebp), %eax
 	movl	%eax, b
+
 # *b
 	movl	b, %eax
 	movl	(%eax), %eax
-	movl	%eax, -8
+	movl	%eax, -8(%ebp)
+
 	movl	$0, %eax
 	movl	%eax, -8(%ebp)
+
 # &d
 	leal	d, %eax
-	%eax, -12
+	movl	%eax, -12(%ebp)
+
 	movl	-12(%ebp), %eax
 	movl	%eax, b
 	movl	b, %eax

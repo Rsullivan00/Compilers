@@ -3,15 +3,21 @@ foo:
 	movl	%esp, %ebp
 	movl	$1, %eax
 	movl	%eax, a
-	movl	$2, %eax
-	movl	%eax, b
 
-# a + b
+# a - $1
 	movl	a, %eax
-	addl	b, %eax
-	movl	%eax, -4
+	addl	$1, %eax
+	movl	%eax, -4(%ebp)
 
 	movl	-4(%ebp), %eax
+	movl	%eax, b
+
+# a - b
+	movl	a, %eax
+	addl	b, %eax
+	movl	%eax, -8(%ebp)
+
+	movl	-8(%ebp), %eax
 	movl	%eax, c
 	movl	%ebp, %esp
 	popl	%ebp

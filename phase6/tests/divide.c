@@ -2,7 +2,7 @@ int a, b, c;
 
 int foo(void) {
 
-    a = 1;
-    b = 2;
+    a = 2;
+    b = a / 2;
     c = b / a; 
 }

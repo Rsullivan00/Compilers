@@ -1,19 +1,27 @@
 foo:
 	pushl	%ebp
 	movl	%esp, %ebp
-	movl	$1, %eax
+	movl	$4, %eax
 	movl	%eax, a
-	movl	$2, %eax
-	movl	%eax, b
 
-# b % a
-	movl	b, %eax
+# a % $3
 	movl	a, %eax
+	movl	$3, %ecx
 	cltd
-	idivl	%eax
-	movl	%edx, -4
+	idivl	%ecx
+	movl	%edx, -4(%ebp)
 
 	movl	-4(%ebp), %eax
+	movl	%eax, b
+
+# a % b
+	movl	a, %eax
+	movl	b, %ecx
+	cltd
+	idivl	%ecx
+	movl	%edx, -8(%ebp)
+
+	movl	-8(%ebp), %eax
 	movl	%eax, c
 	movl	%ebp, %esp
 	popl	%ebp

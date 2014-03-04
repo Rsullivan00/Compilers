@@ -24,7 +24,7 @@ int globalTemp;
  *		expression.
  */
 
-ostream &operator <<(ostream &ostr, Expression *expr)
+ostream &operator <<(ostream &ostr, const Expression *expr)
 {
     return ostr << expr->operand;
 }
@@ -193,81 +193,62 @@ void assignTemp(Expression &e) {
 }
 
 void Add::generate() {    
-    string opcode = "addl";
-
     _left->generate();
     _right->generate();
     assignTemp(*this);
  
-    cout << endl;
-    cout << "# " << _left << " + " << _right << endl;
-    cout << "\tmovl\t" << _left << ", \%eax" << endl;
-    cout << "\t" << opcode << "\t" << _right << ", \%eax" << endl;
-    cout << "\tmovl\t\%eax, " << globalTemp << endl;
-    cout << endl;
+    arithmetic("+", "addl", _left, _right);
 }
 
 void Subtract::generate() {
-    string opcode = "subl";
-
     _left->generate();
     _right->generate();
     assignTemp(*this);
- 
+    
+    arithmetic("-", "subl", _left, _right); 
+}
+
+void Multiply::generate() {    
+    _left->generate();
+    _right->generate();
+    assignTemp(*this);
+
+    arithmetic("*", "imull", _left, _right);
+}
+
+void Expression::arithmetic(const string& op, const string& opcode, const Expression *_left, const Expression *_right) {
     cout << endl;
     cout << "# " << _left << " - " << _right << endl;
     cout << "\tmovl\t" << _left << ", \%eax" << endl;
     cout << "\t" << opcode << "\t" << _right << ", \%eax" << endl;
-    cout << "\tmovl\t\%eax, " << globalTemp << endl;
-    cout << endl;
-}
-
-void Multiply::generate() {    
-    string opcode = "imull";
-
-    _left->generate();
-    _right->generate();
-    assignTemp(*this);
- 
-    cout << endl;
-    cout << "# " << _left << " * " << _right << endl;
-    cout << "\tmovl\t" << _left << ", \%eax" << endl;
-    cout << "\t" << opcode << "\t" << _right << ", \%eax" << endl;
-    cout << "\tmovl\t\%eax, " << globalTemp << endl;
+    cout << "\tmovl\t\%eax, " << this << endl;
     cout << endl;
 }
 
 void Divide::generate() {
-    string reg = "\%eax";
-
     _left->generate();
     _right->generate();
     assignTemp(*this);
  
-    cout << endl;
-    cout << "# " << _left << " / " << _right << endl;
-    cout << "\tmovl\t" << _left << ", \%eax" << endl;
-    cout << "\tmovl\t" << _right << ", \%eax" << endl;
-    cout << "\tcltd" << endl;
-    cout << "\tidivl\t\%eax" << endl;
-    cout << "\tmovl\t" << reg << ", " << globalTemp << endl;
-    cout << endl;
+    remainderDivide("/", "\%eax", _left, _right);
 }
 
 void Remainder::generate() {
-    string reg = "\%edx";
-
     _left->generate();
     _right->generate();
     assignTemp(*this);
  
+    remainderDivide("%", "\%edx", _left, _right);
+}
+
+void Expression::remainderDivide(const string& op, const string& reg, const Expression *_left, const Expression *_right) {
     cout << endl;
-    cout << "# " << _left << " % " << _right << endl;
+    cout << "# " << _left << " " << op << " " << _right << endl;
     cout << "\tmovl\t" << _left << ", \%eax" << endl;
-    cout << "\tmovl\t" << _right << ", \%eax" << endl;
+    cout << "\tmovl\t" << _right << ", \%ecx" << endl;
     cout << "\tcltd" << endl;
-    cout << "\tidivl\t\%eax" << endl;
-    cout << "\tmovl\t" << reg << ", " << globalTemp << endl;
+    cout << "\tidivl\t\%ecx" << endl;
+    cout << "\tmovl\t" << reg << ", " << this << endl;
     cout << endl;
 }
 
@@ -280,7 +261,7 @@ void Not::generate() {
     cout << "\tcmpl\t" << "$0, \%eax" << endl;
     cout << "\tsete\t" << "\%al" << endl;
     cout << "\tmovzbl\t" << "\%al, \%eax" << endl;
-    cout << "\tmovl\t\%eax, " << globalTemp << endl;
+    cout << "\tmovl\t\%eax, " << this << endl;
     cout << endl;
 }
 
@@ -292,7 +273,7 @@ void Negate::generate() {
     cout << "# -" << _expr << endl;
     cout << "\tmovl\t" << _expr << ", \%eax" << endl;
     cout << "\tnegl\t\%eax" << endl;
-    cout << "\tmovl\t\%eax, " << globalTemp << endl;
+    cout << "\tmovl\t\%eax, " << this << endl;
     cout << endl;
 }
 
@@ -301,18 +282,83 @@ void Dereference::generate() {
     assignTemp(*this);
 
     /* Need to handle both rvalue and lvalue cases. */
+    cout << endl;
     cout << "# *" << _expr << endl;
     cout << "\tmovl\t" << _expr << ", \%eax" << endl;
     cout << "\tmovl\t" << "(\%eax), \%eax" << endl;
-    cout << "\tmovl\t" << "\%eax, " << globalTemp << endl;
-
+    cout << "\tmovl\t" << "\%eax, " << this << endl;
+    cout << endl;
 }
 
 void Address::generate() {
     _expr->generate();
     assignTemp(*this);
 
+    cout << endl;
     cout << "# &" << _expr << endl;
     cout << "\tleal\t" << _expr << ", \%eax" << endl;
-    cout << "\t\%eax, " << globalTemp << endl;
+    cout << "\tmovl\t\%eax, " << this << endl;
+    cout << endl;
+}
+
+void LessThan::generate() {
+    _left->generate();
+    _right->generate();
+    assignTemp(*this);
+
+    comparison("<", "setl", _left, _right);
+}
+
+void GreaterThan::generate() {
+    _left->generate();
+    _right->generate();
+    assignTemp(*this);
+
+    comparison(">", "setg", _left, _right);
+}
+
+void LessOrEqual::generate() {
+    _left->generate();
+    _right->generate();
+    assignTemp(*this);
+
+    comparison("<=", "setle", _left, _right);
+}
+
+void GreaterOrEqual::generate() {
+    _left->generate();
+    _right->generate();
+    assignTemp(*this);
+
+    comparison(">=", "setge", _left, _right);
+}
+
+void Equal::generate() {
+    _left->generate();
+    _right->generate();
+    assignTemp(*this);
+
+    comparison("==", "sete", _left, _right);
+}
+
+void NotEqual::generate() {
+    _left->generate();
+    _right->generate();
+    assignTemp(*this);
+
+    comparison("!=", "setne", _left, _right);
+}
+
+/*
+ * Helper functions
+ */
+void Expression::comparison(const string& op, const string& opcode, const Expression *_left, const Expression *_right) {
+    cout << endl;
+    cout << "# " << _left << " " << op << " " << _right << endl;
+    cout << "\tmovl\t" << _left << ", \%eax" << endl;
+    cout << "\tcmpl\t" << _right << ", \%eax" << endl;
+    cout << "\t" << opcode << "\t\%al" << endl;
+    cout << "\tmovzbl\t\%al, \%eax" << endl;
+    cout << "\tmovl\t\%eax, " << this << endl;   
+    cout << endl;
 }

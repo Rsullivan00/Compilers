@@ -27,6 +27,7 @@
 # define TREE_H
 # include <string>
 # include <vector>
+# include <iostream>
 # include "Scope.h"
 
 typedef std::vector<class Statement *> Statements;
@@ -62,12 +63,16 @@ protected:
     Type _type;
     bool _lvalue;
     Expression(const Type &_type = Type());
+    void comparison(const string& op, const string& opcode, const Expression *_left, const Expression *_right);
+    void arithmetic(const string& op, const string& opcode, const Expression *_left, const Expression *_right);
+    void remainderDivide(const string& op, const string& reg, const Expression *_left, const Expression *_right);
 
 public:
     string operand;
 
     const Type &type() const;
     bool lvalue() const;
+    friend std::ostream &operator<<(std::ostream &ostr, const Expression *expr);
 };
 
 
@@ -225,6 +230,7 @@ class LessThan : public Expression {
 
 public:
     LessThan(Expression *left, Expression *right, const Type &type);
+    void generate();
 };
 
 
@@ -235,6 +241,7 @@ class GreaterThan : public Expression {
 
 public:
     GreaterThan(Expression *left, Expression *right, const Type &type);
+    void generate();
 };
 
 
@@ -245,6 +252,7 @@ class LessOrEqual : public Expression {
 
 public:
     LessOrEqual(Expression *left, Expression *right, const Type &type);
+    void generate();
 };
 
 
@@ -255,6 +263,7 @@ class GreaterOrEqual : public Expression {
 
 public:
     GreaterOrEqual(Expression *left, Expression *right, const Type &type);
+    void generate();
 };
 
 
@@ -265,6 +274,7 @@ class Equal : public Expression {
 
 public:
     Equal(Expression *left, Expression *right, const Type &type);
+    void generate();
 };
 
 
@@ -275,6 +285,7 @@ class NotEqual : public Expression {
 
 public:
     NotEqual(Expression *left, Expression *right, const Type &type);
+    void generate();
 };
 
 

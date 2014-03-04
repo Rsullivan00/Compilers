@@ -1,8 +1,7 @@
 int a, b, c;
 
 int foo(void) {
-
-    a = 1;
-    b = 2;
-    c = b % a; 
+    a = 4;
+    b = a % 3;
+    c = a % b; 
 }

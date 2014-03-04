@@ -8,7 +8,7 @@ foo:
 	cmpl	$0, %eax
 	sete	%al
 	movzbl	%al, %eax
-	movl	%eax, -4
+	movl	%eax, -4(%ebp)
 
 	movl	-4(%ebp), %eax
 	movl	%eax, b
@@ -17,21 +17,21 @@ foo:
 	cmpl	$0, %eax
 	sete	%al
 	movzbl	%al, %eax
-	movl	%eax, -8
+	movl	%eax, -8(%ebp)
 
 
 # !-8(%ebp)
 	cmpl	$0, %eax
 	sete	%al
 	movzbl	%al, %eax
-	movl	%eax, -12
+	movl	%eax, -12(%ebp)
 
 
 # !-12(%ebp)
 	cmpl	$0, %eax
 	sete	%al
 	movzbl	%al, %eax
-	movl	%eax, -16
+	movl	%eax, -16(%ebp)
 
 	movl	-16(%ebp), %eax
 	movl	%eax, c
