@@ -13,4 +13,14 @@
 void generateGlobals(const Symbols &globals);
 void assignTemp(Expression &e);
 
+class Label {
+public:
+    static int counter;
+    int number;
+    friend std::ostream &operator <<(std::ostream &os, const Label &label);
+    Label() {
+	number = counter++;
+    }
+
+};
 # endif /* GENERATOR_H */

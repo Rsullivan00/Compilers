@@ -16,6 +16,28 @@
 using namespace std;
 
 int globalTemp;
+int functionCounter;
+
+int Label::counter = 0;
+
+ostream &operator <<(ostream &os, const Label &label) {
+    return os << label.number;
+}
+
+void String::generate() {
+    Label label;
+
+    cout << endl;
+    cout << ".data" << endl;
+    cout << ".L" << label << ": .asciz " << _value << endl;
+    cout << ".text" << endl;
+    cout << endl;
+
+    stringstream ss;
+    ss << "$.L" << label;
+
+    operand = ss.str();
+}
 
 /*
  * Function:	operator <<
@@ -78,7 +100,8 @@ void Call::generate()
 {
     unsigned numBytes = 0;
 
-
+    cout << endl;
+    cout << "# Call " << _id->name() << endl;
     for (int i = _args.size() - 1; i >= 0; i --) {
 	_args[i]->generate();
 	cout << "\tpushl\t" << _args[i] << endl;
@@ -145,17 +168,19 @@ void Function::generate()
     cout << "\tpushl\t%ebp" << endl;
     cout << "\tmovl\t%esp, %ebp" << endl;
 
-    if (offset != 0)
-	cout << "\tsubl\t$" << _id->name() << ".size, %esp" << endl;
+    cout << "\tsubl\t$" << _id->name() << ".size, %esp" << endl;
 
 
     /* Generate the body of this function. */
+    Label label;
+    functionCounter = label.number;
 
     _body->generate();
 
-
     /* Generate our epilogue. */
 
+    cout << "." << _id->name() << ".epilogue:" << endl;
+    cout << ".L" << label << ":" << endl;
     cout << "\tmovl\t%ebp, %esp" << endl;
     cout << "\tpopl\t%ebp" << endl;
     cout << "\tret" << endl << endl;
@@ -218,7 +243,7 @@ void Multiply::generate() {
 
 void Expression::arithmetic(const string& op, const string& opcode, const Expression *_left, const Expression *_right) {
     cout << endl;
-    cout << "# " << _left << " - " << _right << endl;
+    cout << "# " << _left << " " << op << " " << _right << endl;
     cout << "\tmovl\t" << _left << ", \%eax" << endl;
     cout << "\t" << opcode << "\t" << _right << ", \%eax" << endl;
     cout << "\tmovl\t\%eax, " << this << endl;
@@ -347,6 +372,92 @@ void NotEqual::generate() {
     assignTemp(*this);
 
     comparison("!=", "setne", _left, _right);
+}
+
+void LogicalOr::generate() {
+    _left->generate();
+
+    Label label;
+
+    cout << endl;
+    cout << "\tcmpl\t$0, " << _left << endl;
+    cout << "\tjne\t" << label.number << endl;
+
+    _right->generate();
+    assignTemp(*this);
+
+    cout << "\tcmpl\t$0" << _right << endl;
+    cout << ".L" << label.number << ":" << endl;
+    cout << "\tsetne\t\%al" << endl;
+    cout << "\tmovzbl\t\%al, \%eax" << endl;
+    cout << "\tmovl\t\%eax, " << this << endl;
+    cout << endl;
+}
+void LogicalAnd::generate() {
+    _left->generate();
+
+    Label label;
+
+    cout << endl;
+    cout << "\tcmpl\t$0, " << _left << endl;
+    cout << "\tje\t" << label.number << endl;
+
+    _right->generate();
+    assignTemp(*this);
+
+    cout << "\tcmpl\t$0" << _right << endl;
+    cout << ".L" << label.number << ":" << endl;
+    cout << "\tsetne\t\%al" << endl;
+    cout << "\tmovzbl\t\%al, \%eax" << endl;
+    cout << "\tmovl\t\%eax, " << this << endl;
+    cout << endl;
+}
+
+void If::generate() {
+    _expr->generate();
+
+    Label label0, label1;
+
+    cout << endl;
+    cout << "\tmovl\t" << _expr << ", \%eax" << endl;
+    cout << "\tcmpl\t$0, \%eax" << endl;
+    cout << "\tje\t" << label0 << endl;
+
+    _thenStmt->generate();
+
+    cout << "\tjmp\t" << label1 << endl;
+    cout << label0 << ":" << endl;
+
+    /* Do we need a null check here? */
+    _elseStmt->generate();
+    cout << label1 << ":" << endl;
+    cout << endl;
+}
+
+void While::generate() {
+    Label label0, label1;
+
+    cout << endl;
+    cout << ".L" << label0 << ":" << endl;
+
+    _expr->generate();
+    
+    cout << "\tcmpl\t$0, " << _expr << endl;
+    cout << "\tje\t" << label1 << endl;
+    _stmt->generate();
+    cout << "\tjmp\t" << label0 << endl;
+
+    cout << ".L" << label1 << ":" << endl;
+    cout << endl;
+}
+
+void Return::generate() {
+    _expr->generate();
+
+    cout << endl;
+    cout << "\tmovl\t" << _expr << ", \%eax" << endl;
+    cout << "\tjmp\t.L" << functionCounter << endl;
+    cout << endl;
 }
 
 /*

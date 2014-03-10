@@ -40,7 +40,14 @@ test_prefixes = ["add",
 		"greaterThanEqual",
 		"equal",
 		"notEqual",
-		"tree"]
+		"tree",
+		"calc",
+		"fib",
+		"global",
+		"hello",
+		"int",
+		"matrix",
+		"qsort"]
 
 def AsLib(prefix)
     prefix + "-lib.c"
@@ -56,6 +63,9 @@ def AsAssem(prefix)
 end
 def AsResults(prefix)
     prefix + ".diff"
+end
+def AsIn(prefix)
+    prefix + ".in"
 end
 
 test_to_do = nil
@@ -73,7 +83,7 @@ def test(prefix)
         return false
     end
     puts ":: Running..."
-    system("#{RESULTS + prefix} > #{RESULTS + AsOut(prefix)}")
+    system("#{RESULTS + prefix} #{("< " + RESULTS + AsIn(prefix)) if File.exists?(RESULTS + AsIn(prefix))} > #{RESULTS + AsOut(prefix)}")
     out = `diff #{EXAMPLES + AsOut(prefix)} #{RESULTS + AsOut(prefix)}`
     if(out.empty?)
         puts ":: '#{prefix}' Passed"

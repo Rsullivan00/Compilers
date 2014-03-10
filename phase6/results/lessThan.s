@@ -1,6 +1,7 @@
 foo:
 	pushl	%ebp
 	movl	%esp, %ebp
+	subl	$foo.size, %esp
 
 # $0 < $1
 	movl	$0, %eax
@@ -31,6 +32,8 @@ foo:
 
 	movl	-12(%ebp), %eax
 	movl	%eax, c
+.foo.epilogue:
+.L0:
 	movl	%ebp, %esp
 	popl	%ebp
 	ret

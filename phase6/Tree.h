@@ -84,6 +84,7 @@ class String : public Expression {
 public:
     String(const string &value);
     const string &value() const;
+    virtual void generate();
 };
 
 
@@ -296,6 +297,7 @@ class LogicalAnd: public Expression {
 
 public:
     LogicalAnd(Expression *left, Expression *right, const Type &type);
+    void generate();
 };
 
 
@@ -306,6 +308,7 @@ class LogicalOr : public Expression {
 
 public:
     LogicalOr(Expression *left, Expression *right, const Type &type);
+    void generate();
 };
 
 
@@ -327,6 +330,7 @@ class Return : public Statement {
 
 public:
     Return(Expression *expr);
+    void generate();
 };
 
 
@@ -353,6 +357,7 @@ class While : public Statement {
 public:
     While(Expression *expr, Statement *stmt);
     virtual void allocate(int &offset) const;
+    virtual void generate();
 };
 
 
@@ -365,6 +370,7 @@ class If : public Statement {
 public:
     If(Expression *expr, Statement *thenStmt, Statement *elseStmt);
     virtual void allocate(int &offset) const;
+    virtual void generate();
 };
 
 

@@ -81,6 +81,6 @@ int main(void)
     root = insert(root, &a[6]);
     printf("preorder traversal:\n");
     preorder(root);
-    printf("inorder tranversal:\n");
+    printf("inorder traversal:\n");
     inorder(root);
 }
