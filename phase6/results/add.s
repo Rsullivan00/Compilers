@@ -18,7 +18,19 @@ foo:
 	addl	b, %eax
 	movl	%eax, -8(%ebp)
 
+
+# -8(%ebp) + b
 	movl	-8(%ebp), %eax
+	addl	b, %eax
+	movl	%eax, -12(%ebp)
+
+
+# -12(%ebp) + b
+	movl	-12(%ebp), %eax
+	addl	b, %eax
+	movl	%eax, -16(%ebp)
+
+	movl	-16(%ebp), %eax
 	movl	%eax, c
 .foo.epilogue:
 .L0:
@@ -27,7 +39,7 @@ foo:
 	ret
 
 	.global	foo
-	.set	foo.size, 0
+	.set	foo.size, 16
 
 	.data
 	.comm	a, 4, 4

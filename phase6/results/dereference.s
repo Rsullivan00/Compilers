@@ -13,13 +13,9 @@ foo:
 
 	movl	-4(%ebp), %eax
 	movl	%eax, b
-
-# *b
-	movl	b, %eax
-	movl	(%eax), %eax
-	movl	%eax, -8(%ebp)
-
 	movl	$0, %eax
+	movl	b, %ecx
+	movl	%eax, (%ecx)
 	movl	%eax, -8(%ebp)
 
 # &d
@@ -28,6 +24,9 @@ foo:
 
 	movl	-12(%ebp), %eax
 	movl	%eax, b
+
+# &b
+
 	movl	b, %eax
 	movl	%eax, c
 .foo.epilogue:
@@ -37,7 +36,7 @@ foo:
 	ret
 
 	.global	foo
-	.set	foo.size, 0
+	.set	foo.size, 12
 
 	.data
 	.comm	a, 4, 4

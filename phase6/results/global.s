@@ -27,7 +27,7 @@ foo:
 	ret
 
 	.global	foo
-	.set	foo.size, 0
+	.set	foo.size, 8
 
 main:
 	pushl	%ebp
@@ -35,24 +35,34 @@ main:
 	subl	$main.size, %esp
 	movl	$65, %eax
 	movl	%eax, x
+
 # Call putchar
 	pushl	x
 	call	putchar
 	addl	$4, %esp
+	movl	%eax, -4(%ebp)
+
 # Call putchar
+
 # Call foo
 	call	foo
-	pushl	
+	movl	%eax, -8(%ebp)
+	pushl	-8(%ebp)
 	call	putchar
 	addl	$4, %esp
+	movl	%eax, -12(%ebp)
+
 # Call putchar
 	pushl	x
 	call	putchar
 	addl	$4, %esp
+	movl	%eax, -16(%ebp)
+
 # Call putchar
 	pushl	$10
 	call	putchar
 	addl	$4, %esp
+	movl	%eax, -20(%ebp)
 .main.epilogue:
 .L1:
 	movl	%ebp, %esp
@@ -60,7 +70,7 @@ main:
 	ret
 
 	.global	main
-	.set	main.size, 0
+	.set	main.size, 20
 
 	.data
 	.comm	x, 4, 4

@@ -82,6 +82,7 @@ main:
 
 	movl	-72(%ebp), %eax
 	movl	%eax, -32(%ebp)
+
 # Call printf
 	pushl	-16(%ebp)
 
@@ -92,6 +93,8 @@ main:
 	pushl	$.L1
 	call	printf
 	addl	$8, %esp
+	movl	%eax, -76(%ebp)
+
 # Call printf
 	pushl	-20(%ebp)
 
@@ -102,6 +105,8 @@ main:
 	pushl	$.L2
 	call	printf
 	addl	$8, %esp
+	movl	%eax, -80(%ebp)
+
 # Call printf
 	pushl	-24(%ebp)
 
@@ -112,6 +117,8 @@ main:
 	pushl	$.L3
 	call	printf
 	addl	$8, %esp
+	movl	%eax, -84(%ebp)
+
 # Call printf
 	pushl	-28(%ebp)
 
@@ -122,6 +129,8 @@ main:
 	pushl	$.L4
 	call	printf
 	addl	$8, %esp
+	movl	%eax, -88(%ebp)
+
 # Call printf
 	pushl	-32(%ebp)
 
@@ -132,6 +141,7 @@ main:
 	pushl	$.L5
 	call	printf
 	addl	$8, %esp
+	movl	%eax, -92(%ebp)
 .main.epilogue:
 .L0:
 	movl	%ebp, %esp
@@ -139,5 +149,5 @@ main:
 	ret
 
 	.global	main
-	.set	main.size, 32
+	.set	main.size, 92
 

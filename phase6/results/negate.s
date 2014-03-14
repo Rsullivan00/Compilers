@@ -39,7 +39,7 @@ foo:
 	ret
 
 	.global	foo
-	.set	foo.size, 0
+	.set	foo.size, 16
 
 	.data
 	.comm	a, 4, 4

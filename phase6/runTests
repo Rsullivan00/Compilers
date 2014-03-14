@@ -47,7 +47,11 @@ test_prefixes = ["add",
 		"hello",
 		"int",
 		"matrix",
-		"qsort"]
+		"qsort",
+		"logicalOr",
+		"if",
+		"class",
+		"meghan"]
 
 def AsLib(prefix)
     prefix + "-lib.c"
@@ -77,13 +81,13 @@ def test(prefix)
     puts ":: Compiling..."
     system("#{DIR}scc < #{EXAMPLES + AsC(prefix)} > #{RESULTS + AsAssem(prefix)}")
     puts ":: Building executable..."
-    status = system("gcc -m32 #{RESULTS + AsAssem(prefix)} #{(EXAMPLES + AsLib(prefix)) if File.exists?(EXAMPLES + AsLib(prefix))} -o #{RESULTS + prefix}")
+    status = system("gcc -g -m32 #{RESULTS + AsAssem(prefix)} #{(EXAMPLES + AsLib(prefix)) if File.exists?(EXAMPLES + AsLib(prefix))} -o #{RESULTS + prefix}")
     if(!status)
         puts ":: Compilation Failed, ending test case"
         return false
     end
     puts ":: Running..."
-    system("#{RESULTS + prefix} #{("< " + RESULTS + AsIn(prefix)) if File.exists?(RESULTS + AsIn(prefix))} > #{RESULTS + AsOut(prefix)}")
+    system("#{RESULTS + prefix} #{("< " + RESULTS + AsIn(prefix)) if File.exists?(EXAMPLES + AsIn(prefix))} > #{RESULTS + AsOut(prefix)}")
     out = `diff #{EXAMPLES + AsOut(prefix)} #{RESULTS + AsOut(prefix)}`
     if(out.empty?)
         puts ":: '#{prefix}' Passed"

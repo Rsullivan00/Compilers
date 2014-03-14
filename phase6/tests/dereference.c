@@ -6,5 +6,5 @@ void foo(void) {
     b = &a;
     *b = 0;
     b = &d;
-    c = b; 
+    c = &*b; 
 }

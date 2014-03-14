@@ -73,6 +73,8 @@ public:
     const Type &type() const;
     bool lvalue() const;
     friend std::ostream &operator<<(std::ostream &ostr, const Expression *expr);
+    virtual void generate() = 0;
+    virtual void generate(bool &lvalue);
 };
 
 
@@ -132,7 +134,7 @@ class Not : public Expression {
 
 public:
     Not(Expression *expr, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -143,7 +145,7 @@ class Negate : public Expression {
 
 public:
     Negate(Expression *expr, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -154,7 +156,8 @@ class Dereference : public Expression {
 
 public:
     Dereference(Expression *expr, const Type &type);
-    void generate();
+    virtual void generate();
+    virtual void generate(bool &lvalue);
 };
 
 
@@ -165,7 +168,8 @@ class Address : public Expression {
 
 public:
     Address(Expression *expr, const Type &type);
-    void generate();
+    virtual void generate();
+    //virtual void generate(bool &lvalue);
 };
 
 
@@ -176,7 +180,7 @@ class Multiply : public Expression {
 
 public:
     Multiply(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -187,7 +191,7 @@ class Divide : public Expression {
 
 public:
     Divide(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -198,7 +202,7 @@ class Remainder : public Expression {
 
 public:
     Remainder(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -209,7 +213,7 @@ class Add : public Expression {
 
 public:
     Add(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -220,7 +224,7 @@ class Subtract : public Expression {
 
 public:
     Subtract(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -231,7 +235,7 @@ class LessThan : public Expression {
 
 public:
     LessThan(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -242,7 +246,7 @@ class GreaterThan : public Expression {
 
 public:
     GreaterThan(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -253,7 +257,7 @@ class LessOrEqual : public Expression {
 
 public:
     LessOrEqual(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -264,7 +268,7 @@ class GreaterOrEqual : public Expression {
 
 public:
     GreaterOrEqual(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -275,7 +279,7 @@ class Equal : public Expression {
 
 public:
     Equal(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -286,7 +290,7 @@ class NotEqual : public Expression {
 
 public:
     NotEqual(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -297,7 +301,7 @@ class LogicalAnd: public Expression {
 
 public:
     LogicalAnd(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
@@ -308,13 +312,13 @@ class LogicalOr : public Expression {
 
 public:
     LogicalOr(Expression *left, Expression *right, const Type &type);
-    void generate();
+    virtual void generate();
 };
 
 
 /* An assignment statement: left = right */
 
-class Assignment : public Statement {
+class Assignment : public Expression {
     Expression *_left, *_right;
 
 public:
@@ -330,7 +334,7 @@ class Return : public Statement {
 
 public:
     Return(Expression *expr);
-    void generate();
+    virtual void generate();
 };
 
 

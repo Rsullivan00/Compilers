@@ -21,7 +21,7 @@ int functionCounter;
 int Label::counter = 0;
 
 ostream &operator <<(ostream &os, const Label &label) {
-    return os << label.number;
+    return os << ".L" << label.number;
 }
 
 void String::generate() {
@@ -29,12 +29,12 @@ void String::generate() {
 
     cout << endl;
     cout << ".data" << endl;
-    cout << ".L" << label << ": .asciz " << _value << endl;
+    cout << label << ": .asciz " << _value << endl;
     cout << ".text" << endl;
     cout << endl;
 
     stringstream ss;
-    ss << "$.L" << label;
+    ss << "$" << label;
 
     operand = ss.str();
 }
@@ -98,7 +98,7 @@ void Number::generate()
 
 void Call::generate()
 {
-    unsigned numBytes = 0;
+    int numBytes = 0;
 
     cout << endl;
     cout << "# Call " << _id->name() << endl;
@@ -112,6 +112,9 @@ void Call::generate()
 
     if (numBytes > 0)
 	cout << "\taddl\t$" << numBytes << ", %esp" << endl;
+
+    assignTemp(*this);
+    cout << "\tmovl\t\%eax, " << this << endl;
 }
 
 
@@ -126,11 +129,20 @@ void Call::generate()
 
 void Assignment::generate()
 {
-    _left->generate();
+    bool isIndirect;
+    _left->generate(isIndirect);
     _right->generate();
 
-    cout << "\tmovl\t" << _right << ", %eax" << endl;
-    cout << "\tmovl\t%eax, " << _left << endl;
+    if (isIndirect) {
+	assignTemp(*this);
+	cout << "\tmovl\t" << _right << ", %eax" << endl;
+	cout << "\tmovl\t" << _left << ", %ecx" << endl;
+	cout << "\tmovl\t%eax, (\%ecx)" << endl;
+	cout << "\tmovl\t%eax, " << this << endl;
+    } else {
+	cout << "\tmovl\t" << _right << ", %eax" << endl;
+	cout << "\tmovl\t%eax, " << _left << endl;
+    }
 }
 
 
@@ -180,13 +192,13 @@ void Function::generate()
     /* Generate our epilogue. */
 
     cout << "." << _id->name() << ".epilogue:" << endl;
-    cout << ".L" << label << ":" << endl;
+    cout << label << ":" << endl;
     cout << "\tmovl\t%ebp, %esp" << endl;
     cout << "\tpopl\t%ebp" << endl;
     cout << "\tret" << endl << endl;
 
     cout << "\t.global\t" << _id->name() << endl;
-    cout << "\t.set\t" << _id->name() << ".size, " << -offset << endl;
+    cout << "\t.set\t" << _id->name() << ".size, " << -globalTemp << endl;
 
     cout << endl;
 }
@@ -283,7 +295,8 @@ void Not::generate() {
 
     cout << endl;
     cout << "# !" << _expr << endl;
-    cout << "\tcmpl\t" << "$0, \%eax" << endl;
+    cout << "\tmovl\t" << _expr << ", \%eax" << endl;
+    cout << "\tcmpl\t$0, \%eax" << endl;
     cout << "\tsete\t" << "\%al" << endl;
     cout << "\tmovzbl\t" << "\%al, \%eax" << endl;
     cout << "\tmovl\t\%eax, " << this << endl;
@@ -306,25 +319,55 @@ void Dereference::generate() {
     _expr->generate();
     assignTemp(*this);
 
-    /* Need to handle both rvalue and lvalue cases. */
+    bool isIndirect;
+
+    _expr->generate(isIndirect);
+    
     cout << endl;
     cout << "# *" << _expr << endl;
-    cout << "\tmovl\t" << _expr << ", \%eax" << endl;
-    cout << "\tmovl\t" << "(\%eax), \%eax" << endl;
-    cout << "\tmovl\t" << "\%eax, " << this << endl;
+    if (isIndirect) {
+	operand = _expr->operand;
+    } else {
+	cout << "\tmovl\t" << _expr << ", \%eax" << endl;
+	cout << "\tmovl\t" << "(\%eax), \%eax" << endl;
+	cout << "\tmovl\t" << "\%eax, " << this << endl;
+    }
+
     cout << endl;
+}
+
+void Dereference::generate(bool &isIndirect) {
+    isIndirect = true; 
+    _expr->generate();
+    operand = _expr->operand;
 }
 
 void Address::generate() {
-    _expr->generate();
-    assignTemp(*this);
+    bool isIndirect;
+
+    _expr->generate(isIndirect);
 
     cout << endl;
     cout << "# &" << _expr << endl;
-    cout << "\tleal\t" << _expr << ", \%eax" << endl;
-    cout << "\tmovl\t\%eax, " << this << endl;
+
+    if (isIndirect) {
+	operand = _expr->operand;
+    } else {
+	assignTemp(*this);
+	cout << "\tleal\t" << _expr << ", \%eax" << endl;
+	cout << "\tmovl\t\%eax, " << this << endl;
+    }
+
     cout << endl;
 }
+
+/*
+void Address::generate(bool &isIndirect) {
+    isIndirect = true;
+    operand = _expr->operand;
+    _expr->generate();
+}
+*/
 
 void LessThan::generate() {
     _left->generate();
@@ -380,14 +423,19 @@ void LogicalOr::generate() {
     Label label;
 
     cout << endl;
-    cout << "\tcmpl\t$0, " << _left << endl;
-    cout << "\tjne\t" << label.number << endl;
+    cout << "# Logical Or" << endl;
+    cout << "\tmovl\t" << _left << ", \%eax" << endl;
+    cout << "\tcmpl\t$0, \%eax" << endl;
+
+    cout << "\tjne\t" << label << endl;
 
     _right->generate();
     assignTemp(*this);
 
-    cout << "\tcmpl\t$0" << _right << endl;
-    cout << ".L" << label.number << ":" << endl;
+    cout << "\tmovl\t" << _right << ", \%eax" << endl;
+    cout << "\tcmpl\t$0, \%eax" << endl;
+
+    cout << label << ":" << endl;
     cout << "\tsetne\t\%al" << endl;
     cout << "\tmovzbl\t\%al, \%eax" << endl;
     cout << "\tmovl\t\%eax, " << this << endl;
@@ -399,14 +447,16 @@ void LogicalAnd::generate() {
     Label label;
 
     cout << endl;
-    cout << "\tcmpl\t$0, " << _left << endl;
-    cout << "\tje\t" << label.number << endl;
+    cout << "\tmovl\t" << _left << ", \%eax" << endl;
+    cout << "\tcmpl\t$0, \%eax" << endl;
+    cout << "\tje\t" << label << endl;
 
     _right->generate();
     assignTemp(*this);
 
-    cout << "\tcmpl\t$0" << _right << endl;
-    cout << ".L" << label.number << ":" << endl;
+    cout << "\tmovl\t" << _right << ", \%eax" << endl;
+    cout << "\tcmpl\t$0, \%eax" << endl;
+    cout << label << ":" << endl;
     cout << "\tsetne\t\%al" << endl;
     cout << "\tmovzbl\t\%al, \%eax" << endl;
     cout << "\tmovl\t\%eax, " << this << endl;
@@ -428,8 +478,8 @@ void If::generate() {
     cout << "\tjmp\t" << label1 << endl;
     cout << label0 << ":" << endl;
 
-    /* Do we need a null check here? */
-    _elseStmt->generate();
+    if (_elseStmt)
+	_elseStmt->generate();
     cout << label1 << ":" << endl;
     cout << endl;
 }
@@ -438,16 +488,18 @@ void While::generate() {
     Label label0, label1;
 
     cout << endl;
-    cout << ".L" << label0 << ":" << endl;
+    cout << label0 << ":" << endl;
 
     _expr->generate();
+
+    cout << "\tmovl\t" << _expr << ", \%eax" << endl;
+    cout << "\tcmpl\t$0, \%eax" << endl;
     
-    cout << "\tcmpl\t$0, " << _expr << endl;
     cout << "\tje\t" << label1 << endl;
     _stmt->generate();
     cout << "\tjmp\t" << label0 << endl;
 
-    cout << ".L" << label1 << ":" << endl;
+    cout << label1 << ":" << endl;
     cout << endl;
 }
 
@@ -472,4 +524,9 @@ void Expression::comparison(const string& op, const string& opcode, const Expres
     cout << "\tmovzbl\t\%al, \%eax" << endl;
     cout << "\tmovl\t\%eax, " << this << endl;   
     cout << endl;
+}
+
+void Expression::generate(bool &isIndirect) {
+    isIndirect = false;    
+    generate();
 }

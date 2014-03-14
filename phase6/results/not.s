@@ -6,6 +6,7 @@ foo:
 	movl	%eax, a
 
 # !a
+	movl	a, %eax
 	cmpl	$0, %eax
 	sete	%al
 	movzbl	%al, %eax
@@ -15,6 +16,7 @@ foo:
 	movl	%eax, b
 
 # !b
+	movl	b, %eax
 	cmpl	$0, %eax
 	sete	%al
 	movzbl	%al, %eax
@@ -22,6 +24,7 @@ foo:
 
 
 # !-8(%ebp)
+	movl	-8(%ebp), %eax
 	cmpl	$0, %eax
 	sete	%al
 	movzbl	%al, %eax
@@ -29,6 +32,7 @@ foo:
 
 
 # !-12(%ebp)
+	movl	-12(%ebp), %eax
 	cmpl	$0, %eax
 	sete	%al
 	movzbl	%al, %eax
@@ -43,7 +47,7 @@ foo:
 	ret
 
 	.global	foo
-	.set	foo.size, 0
+	.set	foo.size, 16
 
 	.data
 	.comm	a, 4, 4
